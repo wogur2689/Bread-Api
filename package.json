@@ -1,0 +1,27 @@
+{
+  "name": "bread-api",
+  "version": "1.0.0",
+  "description": "api 서버",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./bin/www.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "wogur2689",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "moment": "^2.29.4",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.2.0",
+    "nodemon": "^2.0.21",
+    "parcel-bundler": "^1.12.5",
+    "winston": "^3.8.2"
+  },
+  "bin": {
+    "daily": "www.js"
+  }
+}
