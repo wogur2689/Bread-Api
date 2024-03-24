@@ -2,68 +2,18 @@
 //자바스크립트 파일을 만들시에는 써줘야함.
 
 const logger = require("../../../config/logger");
-const Daily = require("../../../model/login");
+const Product = require("../../../model/login");
 const smsLogin = require("../../model/smsLogin");
 
 //고정변수
-const title = "My Diary"
-
-//page
-// const output = {
-//     /**
-//      * 시작페이지(main 컨트롤러 함수)
-//      * @param {\} req 
-//      * @param {*} res 
-//      */
-//     mainPage: async (req, res) => {
-//         logger.info(`GET / "메인 화면"`);
-//         const daily = new Daily(req.body); //서비스 객체 생성
-//         let response = await daily.getDailyList(); //전체 데이터 읽어오기
-//         res.render("main/index", {
-//             title: title,
-//             code: "success",
-//             dailys: response
-//         }) //파일 랜더링
-//     },
-
-//     /**
-//      * 일기 쓰기
-//      * @param {\} req 
-//      * @param {*} res 
-//      */
-//     writePage: (req, res) => {
-//         logger.info(`GET /write "일기 작성화면"`);
-//         res.render("main/write", {
-//             title: title,
-//             code: "success"
-//         }) //파일 랜더링
-//     },
-
-//     /**
-//      * 일기 읽기
-//      * @param {\} req 
-//      * @param {*} res
-//      */
-//     readPage: async(req, res) => {
-//         logger.info(`GET /read "일기 내용"`);
-//         const daily = new Daily(req.params); //서비스 객체 생성
-//         let response = await daily.read();
-  
-//         res.render("main/read", {
-//             title: title,
-//             code: "success",
-//             daily: response[0]
-//         }) //파일 랜더링
-//     },
-// }
-
 //api
-const process = {
+const productCtrl = {
     /**
-     * 일기 저장
+     * 상품 리스트 출력
      */
     create: async (req, res) => {
-        const daily = new Daily(req.body); //서비스 객체 생성
+        const product = new Product(req.body); //서비스 객체 생성
+        //1. DB 데이터 갖고 오기
         const response = await daily.create();
 
         const url = {
@@ -130,7 +80,7 @@ function authorizeHandler(options) {
 
 //index.js에서 사용하기 위해 모듈로 주입
 module.exports = {
-    process
+    productCtrl
 };
 
 //로그 출력

@@ -1,4 +1,5 @@
 const mysql = require('mysql2');
+const logger = require("./logger");
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -9,7 +10,13 @@ const db = mysql.createConnection({
     dateStrings: "date",
 });
 
-db.connect();
+db.connect((err) => {
+    if (err) {
+        logger.error('Error connecting to database : ', err);
+        return;
+    }
+    logger.error('connecting to database');
+});
 //db 연결
 
 module.exports = db;
