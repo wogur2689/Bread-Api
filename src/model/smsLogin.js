@@ -37,4 +37,14 @@ class NaverLogin {
     }
 }
 
-module.exports = smsLogin;
+class KaKaoLogin {
+    constructor(body) {
+        this.body = body; //기본생성자
+    }
+    //requestCodeUrl = 'https://kauth.kakao.com/oauth/authorize'
+}
+
+module.exports = {
+    NaverLogin,
+    KaKaoLogin
+};

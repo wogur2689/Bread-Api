@@ -4,8 +4,8 @@
  * Spring의 service 로직
  * 해당 데이터를 가지고 검증 및 조작
  */
-const logger = require("../config/logger");
-const dataStorage = require("./dataStorage");
+const logger = require("../../config/logger");
+const dataStorage = require("../dataStorage");
 const OAuth2Server = require('oauth2-server');
 
 class Daily {

@@ -1,4 +1,5 @@
 {
+    "getUserInfo": "SELECT * FROM user_info Where id = ? LIMIT 1",
     "getProductList": "SELECT * FROM product Where create_at between ? and ?",
     "getProductDetail": "SELECT * FROM product Where id = ? LIMIT 1"
 }
