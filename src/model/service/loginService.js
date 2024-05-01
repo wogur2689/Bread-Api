@@ -13,7 +13,6 @@ class Daily {
         this.body = body; //기본생성자
     }
 
-    //일기 리스트
     async getDailyList() {
         const client = this.body; //클라이언트 값
         try {
@@ -25,7 +24,6 @@ class Daily {
         }
     }
 
-    //일기 저장
     async create() {
         const client = this.body; //클라이언트 값
         try {
@@ -36,7 +34,6 @@ class Daily {
         }
     }
 
-    //일기 읽기
     async read() {
         const client = this.body; //클라이언트 값
         try {
@@ -48,7 +45,6 @@ class Daily {
         }
     }
 
-    //일기 수정
     async update() {
         const client = this.body; //클라이언트 값
         try {
@@ -60,7 +56,6 @@ class Daily {
         }
     }
 
-    //일기 삭제
     async delete() {
         const client = this.body; //클라이언트 값
         try {
