@@ -5,7 +5,7 @@
  * 해당 데이터를 가지고 검증 및 조작
  */
 const logger = require("../../config/logger");
-const dataStorage = require("../dataStorage");
+const LoginDao = require("../dao/loginDao");
 const OAuth2Server = require('oauth2-server');
 
 class Daily {
@@ -13,58 +13,26 @@ class Daily {
         this.body = body; //기본생성자
     }
 
-    async getDailyList() {
-        const client = this.body; //클라이언트 값
+    //회원가입
+    async signUp() {
+        const client = this.body;
         try {
-            const data = await dataStorage.getDailyList(client);
-            return data;
-        }
-        catch (err) {
-            return { success: false, msg: err };
-        }
-    }
-
-    async create() {
-        const client = this.body; //클라이언트 값
-        try {
-            const response = await dataStorage.create(client);
+            const response = await LoginDao.userSave(client);
             return response;
         } catch (err) {
-            return { success: false, msg: err };
+            return { success: false, msg: err}
         }
     }
 
-    async read() {
-        const client = this.body; //클라이언트 값
+    //로그인
+    async login() {
+        const client = this.body;
         try {
-            const data = await dataStorage.read(client);
-            return data;
-        }
-        catch (err) {
-            return { success: false, msg: err };
-        }
-    }
-
-    async update() {
-        const client = this.body; //클라이언트 값
-        try {
-            const data = await dataStorage.update(client);
-            return data;
-        }
-        catch (err) {
-            return { success: false, msg: err };
-        }
-    }
-
-    async delete() {
-        const client = this.body; //클라이언트 값
-        try {
-            const data = await dataStorage.delete(client);
-            return data;
-        }
-        catch (err) {
-            return { success: false, msg: err };
-        }
+            const response = await LoginDao.create(client);
+            return response;
+        } catch (err) {
+            return { success: false, msg: err}
+        } 
     }
 }
 
