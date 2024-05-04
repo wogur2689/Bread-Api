@@ -23,10 +23,10 @@ class LoginDao {
         });
     }
 
-    static get(data) {
+    static getPw(data) {
         return new Promise((resolve, reject) => { //resolve는 성공을, reject는 실패를 반환
-            const query = loadQuery('getUserInfo');
-            db.query(query, data.id ,(err, data) => {
+            const query = loadQuery('login');
+            db.query(query, data.user_id ,(err, data) => {
                 if(err) reject(`${err}`);
                 else resolve(data);
             });

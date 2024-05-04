@@ -8,7 +8,7 @@ const logger = require("../../config/logger");
 const LoginDao = require("../dao/loginDao");
 const OAuth2Server = require('oauth2-server');
 
-class Daily {
+class Login {
     constructor(body) {
         this.body = body; //기본생성자
     }
@@ -28,7 +28,7 @@ class Daily {
     async login() {
         const client = this.body;
         try {
-            const response = await LoginDao.create(client);
+            const response = await LoginDao.getPw(client);
             return response;
         } catch (err) {
             return { success: false, msg: err}
@@ -36,4 +36,4 @@ class Daily {
     }
 }
 
-module.exports = Daily;
+module.exports = Login;
