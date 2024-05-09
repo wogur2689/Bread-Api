@@ -3,8 +3,8 @@
 
 const express = require('express'); //express import
 const router = express.Router();
-const ctrl = require('./main/main.ctrl');
-const loginCtrl = require('./main/login.ctrl');
+//const ctrl = require('./main/main.ctrl');
+const loginCtrl = require('./login.ctrl');
 
 //라우팅하는 것들은 라우트에서 관리
 //get방식 통신 
@@ -12,9 +12,9 @@ const loginCtrl = require('./main/login.ctrl');
 router.post("/login", loginCtrl.process.login);
 router.post("/signUp", loginCtrl.process.signUp);
 
-router.post("/create", ctrl.process.create);
-router.post("/update", ctrl.process.update);
-router.post("/delete", ctrl.process.delete);
+// router.post("/create", ctrl.process.create);
+// router.post("/update", ctrl.process.update);
+// router.post("/delete", ctrl.process.delete);
 
 //이미지 불러오기
 // router.get("/image/:name", (req, res) => {

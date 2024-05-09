@@ -1,9 +1,9 @@
 "use strict"; //ECMA 스크립트 문법 준수
 //자바스크립트 파일을 만들시에는 써줘야함.
 
-const logger = require("../../../config/logger");
-const Daily = require("../../../model/login");
-const smsLogin = require("../../model/smsLogin");
+const logger = require("../config/logger");
+const Daily = require("../model/service/loginService");
+//const smsLogin = require("../model/smsLogin");
 
 //고정변수
 const title = "Login"
@@ -26,6 +26,7 @@ const process = {
     //회원가입
     signUp: async (req, res) => {
         const userData = new Daily(req.body);
+        console.log(userData);
         const url = {
             method:"POST",
             path:"/signUp",
@@ -36,22 +37,22 @@ const process = {
     }
 }
 
-const oauth = new OAuth2Server({model: smsLogin});  // 앞서 구현된 Model Object를 전달
+// const oauth = new OAuth2Server({model: smsLogin});  // 앞서 구현된 Model Object를 전달
 
-function authorizeHandler(options) {
-    return function(req, res, next) {
-        let request = new Request(req);
-        let response = new Response(res);
-        return oauth.authorize(request, response, options) // oauth.authorize 를 호출함으로써 앞서 구현하였던 Model 들이 내부적으로 호출되고 authorization code 발급을 실시
-            .then(function(code) {
-                res.locals.oauth = {code: code};
-                next();
-            })
-            .catch(function(err) {
-                // handle error condition
-            });
-    }
-}
+// function authorizeHandler(options) {
+//     return function(req, res, next) {
+//         let request = new Request(req);
+//         let response = new Response(res);
+//         return oauth.authorize(request, response, options) // oauth.authorize 를 호출함으로써 앞서 구현하였던 Model 들이 내부적으로 호출되고 authorization code 발급을 실시
+//             .then(function(code) {
+//                 res.locals.oauth = {code: code};
+//                 next();
+//             })
+//             .catch(function(err) {
+//                 // handle error condition
+//             });
+//     }
+// }
 
 //index.js에서 사용하기 위해 모듈로 주입
 module.exports = {

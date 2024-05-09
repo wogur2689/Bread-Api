@@ -6,7 +6,7 @@
  */
 const db = require("../../config/db");
 const logger = require("../../config/logger");
-const dateUtil = require("../util/dateUtil.js");
+const dateUtil = require("../../util/dateUtil.js");
 const loadQuery = require('../query/queryLoader');
 // #변수 : public -> private로 접근 지정
 

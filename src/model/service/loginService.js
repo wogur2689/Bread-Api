@@ -6,7 +6,7 @@
  */
 const logger = require("../../config/logger");
 const LoginDao = require("../dao/loginDao");
-const OAuth2Server = require('oauth2-server');
+//const OAuth2Server = require('oauth2-server');
 
 class Login {
     constructor(body) {
