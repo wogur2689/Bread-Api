@@ -1,5 +1,4 @@
-"use strict"; //ECMA 스크립트 문법 준수
-//자바스크립트 파일을 만들시에는 써줘야함.
+"use strict"; 
 const moment = require("moment");
 
 const dateUtil = {

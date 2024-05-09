@@ -3,6 +3,7 @@
 
 //모듈
 const express = require('express');
+const { createConnection } = require('typeorm');
 const dotenv = require("dotenv");
 dotenv.config();
 const app = express();
@@ -22,5 +23,13 @@ app.use("/login", login); //미들웨어 등록
 //app.use("/", express.static(__dirname+'/src/public')); //정적 경로 추가
 
 //app.locals.moment = require('moment');//날짜 형식 변환 ejs에 내려줌.
+createConnection()
+    .then(async (connection) => {
+        console.log('Database connected');
+    })
+    .catch((error) => {
+        console.error('Error connecting to database:', error);
+    }
+);
 
 module.exports = app;

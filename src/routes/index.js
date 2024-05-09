@@ -12,10 +12,6 @@ const loginCtrl = require('./login.ctrl');
 router.post("/login", loginCtrl.process.login);
 router.post("/signUp", loginCtrl.process.signUp);
 
-// router.post("/create", ctrl.process.create);
-// router.post("/update", ctrl.process.update);
-// router.post("/delete", ctrl.process.delete);
-
 //이미지 불러오기
 // router.get("/image/:name", (req, res) => {
 //     fs.readFile("./resouces/img/" + req.params.name, (err, data) => {

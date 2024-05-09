@@ -1,8 +1,7 @@
-"use strict"; //ECMA 스크립트 문법 준수
-//자바스크립트 파일을 만들시에는 써줘야함.
+"use strict";
 
-const logger = require("../config/logger");
-const Daily = require("../model/service/loginService");
+const log = require("../util/logUtil");
+const loginService = require("../model/service/loginService");
 //const smsLogin = require("../model/smsLogin");
 
 //고정변수
@@ -13,11 +12,10 @@ const process = {
 
     //로그인
     login: async (req, res) => {
-        const userData = new Daily(req.body);
         const url = {
             method:"POST",
             path:"/login",
-            status: response.err ? 404 : 200,
+            status: response.err ? 500 : 200,
         }
         log(response, url);
         return res.status(url.status).json(response); //json 반환
@@ -25,12 +23,12 @@ const process = {
 
     //회원가입
     signUp: async (req, res) => {
-        const userData = new Daily(req.body);
-        console.log(userData);
+        //const userData = new Daily(req.body);
+        console.log(req.body);
         const url = {
             method:"POST",
             path:"/signUp",
-            status: response.err ? 404 : 200,
+            status: response.err ? 500 : 200,
         }
         log(response, url);
         return res.status(url.status).json(response); //json 반환
@@ -55,19 +53,4 @@ const process = {
 // }
 
 //index.js에서 사용하기 위해 모듈로 주입
-module.exports = {
-    process
-};
-
-//로그 출력
-const log = (response, url) => {
-    if (response.err) {
-        logger.error(
-            `${url.method} ${url.path} ${url.status} Response: ${response.success} ${response.err}`
-        );
-    } else {
-        logger.info(
-            `${url.method} ${url.path} ${url.status} Response: ${response.success} ${response.msg || ""}`
-        );
-    }
-};
+module.exports = process;

@@ -1,7 +1,7 @@
 "use strict"; //ECMA 스크립트 문법 준수
 //자바스크립트 파일을 만들시에는 써줘야함.
 
-const logger = require("../config/logger");
+const log = require("../util/logUtil");
 const Product = require("../model/service/loginService");
 
 //고정변수
@@ -62,19 +62,4 @@ const productCtrl = {
 
 
 //index.js에서 사용하기 위해 모듈로 주입
-module.exports = {
-    productCtrl
-};
-
-//로그 출력
-const log = (response, url) => {
-    if (response.err) {
-        logger.error(
-            `${url.method} ${url.path} ${url.status} Response: ${response.success} ${response.err}`
-        );
-    } else {
-        logger.info(
-            `${url.method} ${url.path} ${url.status} Response: ${response.success} ${response.msg || ""}`
-        );
-    }
-};
+module.exports = productCtrl;
