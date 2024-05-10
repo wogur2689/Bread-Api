@@ -5,11 +5,20 @@ class User {
     @PrimaryGeneratedColumn()  // 자동 증가 ID
     id;
 
-    @Column({ type: "varchar", length: 20 })  // 일반 컬럼
-    username;
+    @Column({ type: "varchar", length: 20 })
+    userId;
+
+    @Column({ type: "varchar", length: 10 })  // 일반 컬럼
+    name;
 
     @Column({ type: "varchar", length: 20 })
-    password;
-}
+    pwd;
 
-module.exports = { User };
+    @Column({ type: "varchar", length: 20 })
+    phone
+
+    @Column({ type: "varchar", length: 50 })
+    address
+}
+ 
+module.exports = User;
