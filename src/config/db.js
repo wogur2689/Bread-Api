@@ -1,6 +1,28 @@
 const mysql = require('mysql2');
 const logger = require("./logger");
+const { DataSource } = require('typeorm');
 
+/* typeOrm */
+const myDataSource = new DataSource({
+    type: process.env.TYPEORM_CONNECTION,
+    host: process.env.TYPEORM_HOST,
+    port: process.env.TYPEORM_PORT,
+    username: process.env.TYPEORM_USERNAME,
+    password: process.env.TYPEORM_PASSWORD,
+    database: process.env.TYPEORM_DATABASE
+})
+
+//db 연결
+myDataSource.initialize()
+    .then(() => {
+        console.log("Data Source has been initialized!");
+    })
+    .catch((err) => {
+        console.log("Data Source fail initialized!");
+        console.log(err);
+    })
+
+/* default */
 const db = mysql.createConnection({
     host: "localhost",
     port: '3306',
@@ -19,4 +41,6 @@ db.connect((err) => {
 });
 //db 연결
 
-module.exports = db;
+module.exports = {
+    db, myDataSource
+};

@@ -1,7 +1,8 @@
-const { Entity, PrimaryGeneratedColumn, Column} = require("typeorm");
+require("reflect-metadata");
+const { Entity, PrimaryGeneratedColumn, Column, BaseEntity} = require("typeorm");
 
 @Entity()  // 엔티티 데코레이터
-class User {
+class User extends BaseEntity {
     @PrimaryGeneratedColumn()  // 자동 증가 ID
     id;
 

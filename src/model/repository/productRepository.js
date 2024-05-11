@@ -4,10 +4,10 @@
  * DB를 CRUD하는 역할만 수행
  * Spring의 Repository, dao
  */
-const db = require("../../config/db");
-const logger = require("../../config/logger");
+const db = require("../../config/db.js");
+const logger = require("../../config/logger.js");
 const dateUtil = require("../util/dateUtil.js");
-const loadQuery = require('../query/queryLoader');
+const loadQuery = require('../query/queryLoader.js');
 // #변수 : public -> private로 접근 지정
 
 class ProductDao {

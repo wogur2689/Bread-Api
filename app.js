@@ -3,7 +3,6 @@
 
 //모듈
 const express = require('express');
-const { createConnection } = require('typeorm');
 const dotenv = require("dotenv");
 dotenv.config();
 const app = express();
@@ -18,14 +17,5 @@ app.use(express.urlencoded({ extended: true })); //URL을 통해 전달되는 �
 app.use(express.json()); //json데이터 파싱
 //app.use("/", home); //미들웨어 등록
 app.use("/login", login); //미들웨어 등록
-
-createConnection()
-    .then(async (connection) => {
-        console.log('Database connected');
-    })
-    .catch((error) => {
-        console.error('Error connecting to database:', error);
-    }
-);
 
 module.exports = app;

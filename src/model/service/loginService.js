@@ -5,7 +5,7 @@
  * 해당 데이터를 가지고 검증 및 조작
  */
 const log = require("../../util/logUtil");
-const LoginDao = require("../dao/loginDao");
+const LoginRepository = require("../repository/loginRepository");
 //const OAuth2Server = require('oauth2-server');
 
 class Login {
@@ -17,7 +17,7 @@ class Login {
     async signUp() {
         const client = this.body;
         try {
-            const response = await LoginDao.userSave(client);
+            const response = await LoginRepository.userSave(client);
             return response;
         } catch (err) {
             return { success: false, msg: err}
@@ -28,7 +28,7 @@ class Login {
     async login() {
         const client = this.body;
         try {
-            const response = await LoginDao.getPw(client);
+            const response = await LoginRepository.getPw(client);
             return response;
         } catch (err) {
             return { success: false, msg: err}
