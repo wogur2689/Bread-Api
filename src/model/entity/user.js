@@ -20,6 +20,13 @@ class User extends BaseEntity {
 
     @Column({ type: "varchar", length: 50 })
     address
+
+    static setUser(data) {
+        return new User(data.userId, data.name, data.pwd, data.phone, data.address);
+    }
+    static getUser() {
+        return User;
+    }
 }
 
 module.exports = User;
