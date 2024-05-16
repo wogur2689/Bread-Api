@@ -12,7 +12,7 @@ const process = {
         const url = {
             method:"GET",
             path:"/ping",
-            status: response.err ? 404 : 200,
+            status: response.err ? 500 : 200,
         }
 
         log(response, url);

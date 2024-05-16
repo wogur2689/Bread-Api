@@ -23,24 +23,24 @@ myDataSource.initialize()
     })
 
 /* default */
-const db = mysql.createConnection({
-    host: "localhost",
-    port: '3306',
-    user: "root",
-    password: "1234",
-    database: "bread",
-    dateStrings: "date",
-});
+// const db = mysql.createConnection({
+//     host: "localhost",
+//     port: '3306',
+//     user: "root",
+//     password: "1234",
+//     database: "bread",
+//     dateStrings: "date",
+// });
 
-db.connect((err) => {
-    if (err) {
-        logger.error('Error connecting to database : ', err);
-        return;
-    }
-    logger.error('connecting to database');
-});
-//db 연결
+// db.connect((err) => {
+//     if (err) {
+//         logger.error('Error connecting to database : ', err);
+//         return;
+//     }
+//     logger.error('connecting to database');
+// });
+// //db 연결
 
 module.exports = {
-    db, myDataSource
+    myDataSource
 };

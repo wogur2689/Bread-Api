@@ -6,8 +6,8 @@ const { getManager } = require("typeorm");
  * Spring의 Repository, dao
  */
 //const { myDataSource } = require('../../config/db.js');
-const User = require("../entity/User.js");
-const { myDataSource } = require("../../config/db.js");
+const User = require("../entity/user");
+const { myDataSource } = require("../../config/db");
 // #변수 : public -> private로 접근 지정
 const entityManager = myDataSource.manager;
 

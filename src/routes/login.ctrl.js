@@ -24,8 +24,10 @@ const process = {
 
     //회원가입
     signUp: async (req, res) => {
-        //const userData = new Daily(req.body);
         console.log(req.body);
+        logger.info(req.body);
+        const service = loginService(req.body);
+        service.signUp();
         const url = {
             method:"POST",
             path:"/signUp",

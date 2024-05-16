@@ -1,32 +1,57 @@
 require("reflect-metadata");
-const { Entity, PrimaryGeneratedColumn, Column, BaseEntity} = require("typeorm");
+const { Entity, PrimaryGeneratedColumn, Column, BaseEntity, EntitySchema} = require("typeorm");
 
-@Entity()  // 엔티티 데코레이터
-class User extends BaseEntity {
-    @PrimaryGeneratedColumn()  // 자동 증가 ID
-    id;
+// TS적용시 사용가능
+// class User extends BaseEntity {
+//     consstructor() {
+//         super();
+//         Entity(); // 엔티티 데코레이터
+//     }
 
-    @Column({ type: "varchar", length: 20 })
-    userId;
+//     @PrimaryGeneratedColumn()  // 자동 증가 ID
+//     id;
 
-    @Column({ type: "varchar", length: 10 })  // 일반 컬럼
-    name;
+//     @Column({ type: "varchar", length: 20 })
+//     userId;
 
-    @Column({ type: "varchar", length: 20 })
-    pwd;
+//     @Column({ type: "varchar", length: 10 })  // 일반 컬럼
+//     name;
 
-    @Column({ type: "varchar", length: 20 })
-    phone
+//     @Column({ type: "varchar", length: 20 })
+//     pwd;
 
-    @Column({ type: "varchar", length: 50 })
-    address
+//     @Column({ type: "varchar", length: 20 })
+//     phone
 
-    static setUser(data) {
-        return new User(data.userId, data.name, data.pwd, data.phone, data.address);
+//     @Column({ type: "varchar", length: 50 })
+//     address
+
+//     static setUser(data) {
+//         return new User(data.userId, data.name, data.pwd, data.phone, data.address);
+//     }
+//     static getUser() {
+//         return User;
+//     }
+// }
+
+class User extends BaseEntity {}
+
+const UserSchema = new EntitySchema({
+    name: 'User',
+    target: User,
+    columns: {
+        id: {
+            type: 'int',
+            primary: true,
+            generated: true
+        },
+        name: {
+            type: 'varchar'
+        },
+        age: {
+            type: 'int'
+        }
     }
-    static getUser() {
-        return User;
-    }
-}
+});
 
-module.exports = User;
+module.exports = { UserSchema };

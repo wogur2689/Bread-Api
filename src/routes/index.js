@@ -9,8 +9,8 @@ const loginCtrl = require('./login.ctrl');
 //라우팅하는 것들은 라우트에서 관리
 //get방식 통신 
 // 첫번째는 url, 두번째는 서버로 보낼 요청값과 결과값
-router.post("/login", loginCtrl.process.login);
-router.post("/signUp", loginCtrl.process.signUp);
+router.post("/login", loginCtrl.login);
+router.post("/signUp", loginCtrl.signUp);
 
 //이미지 불러오기
 // router.get("/image/:name", (req, res) => {
