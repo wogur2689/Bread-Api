@@ -24,10 +24,8 @@ const process = {
 
     //회원가입
     signUp: async (req, res) => {
-        console.log(req.body);
-        logger.info(req.body);
-        const service = loginService(req.body);
-        service.signUp();
+        const service = new loginService(req.body);
+        let response = service.signUp();
         const url = {
             method:"POST",
             path:"/signUp",

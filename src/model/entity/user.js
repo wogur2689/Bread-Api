@@ -1,4 +1,4 @@
-require("reflect-metadata");
+//require("reflect-metadata");
 const { Entity, PrimaryGeneratedColumn, Column, BaseEntity, EntitySchema} = require("typeorm");
 
 // TS적용시 사용가능
@@ -14,7 +14,7 @@ const { Entity, PrimaryGeneratedColumn, Column, BaseEntity, EntitySchema} = requ
 //     @Column({ type: "varchar", length: 20 })
 //     userId;
 
-//     @Column({ type: "varchar", length: 10 })  // 일반 컬럼
+//     @Column({ type: "varchar", length: 10 })  // 일반 컬럼 
 //     name;
 
 //     @Column({ type: "varchar", length: 20 })
@@ -45,11 +45,29 @@ const UserSchema = new EntitySchema({
             primary: true,
             generated: true
         },
+        userId: {
+            type: 'varchar',
+            length: 20
+        },
         name: {
-            type: 'varchar'
+            type: 'varchar',
+            length: 20
+        },
+        pwd: {
+            tyep: 'varchar',
+            length: 20
         },
         age: {
-            type: 'int'
+            type: 'int',
+            length: 5
+        },
+        phone: {
+            type: 'varchar',
+            length: 20
+        },
+        address: {
+            type: 'varchar',
+            length: 100
         }
     }
 });
