@@ -6,7 +6,7 @@ const { getManager } = require("typeorm");
  * Spring의 Repository, dao
  */
 //const { myDataSource } = require('../../config/db.js');
-const User = require("../entity/user");
+const Users = require("../entity/users");
 const { myDataSource } = require("../../config/db");
 // #변수 : public -> private로 접근 지정
 const entityManager = myDataSource.manager;
@@ -26,7 +26,7 @@ class LoginRepository {
     }
 
     static getPw(data) {
-        return entityManager.getRepository(User).findOneBy({pwd : data});
+        return entityManager.getRepository(Users).findOneBy({pwd : data});
         // return new Promise((resolve, reject) => { //resolve는 성공을, reject는 실패를 반환
         //     const query = loadQuery('login');
         //     db.query(query, data.user_id ,(err, data) => {

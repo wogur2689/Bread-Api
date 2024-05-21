@@ -29,6 +29,7 @@ class Login {
         const client = this.body;
         try {
             const response = await LoginRepository.getPw(client);
+            console.log(response);
             return response;
         } catch (err) {
             return { success: false, msg: err}

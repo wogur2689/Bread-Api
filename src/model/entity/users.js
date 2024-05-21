@@ -34,11 +34,11 @@ const { Entity, PrimaryGeneratedColumn, Column, BaseEntity, EntitySchema} = requ
 //     }
 // }
 
-class User extends BaseEntity {}
+class Users extends BaseEntity {}
 
-const UserSchema = new EntitySchema({
-    name: 'User',
-    target: User,
+const UsersSchema = new EntitySchema({
+    name: 'users',
+    target: Users,
     columns: {
         id: {
             type: 'int',
@@ -72,4 +72,4 @@ const UserSchema = new EntitySchema({
     }
 });
 
-module.exports = { UserSchema };
+module.exports = { UsersSchema };
