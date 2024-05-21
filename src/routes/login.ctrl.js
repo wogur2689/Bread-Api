@@ -1,6 +1,6 @@
 "use strict";
 
-const log = require("../util/logUtil");
+const { log } = require("../util/logUtil");
 const loginService = require("../model/service/loginService");
 //const smsLogin = require("../model/smsLogin");
 
@@ -12,7 +12,8 @@ const process = {
 
     //로그인
     login: async (req, res) => {
-        
+        const service = new loginService(req.body);
+        let response = service.login();
         const url = {
             method:"POST",
             path:"/login",

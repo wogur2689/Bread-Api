@@ -14,4 +14,13 @@ const log = (response, url) => {
     }
 };
 
-module.exports = log;
+// info
+const logInfo = (data) => {
+    logger.info(data);
+}
+
+const logError = (data) => {
+    logger.error(data);
+}
+
+module.exports = { log, logInfo, logError };

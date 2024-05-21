@@ -58,8 +58,7 @@ const UsersSchema = new EntitySchema({
             length: 20
         },
         age: {
-            type: 'int',
-            length: 5
+            type: 'int'
         },
         phone: {
             type: 'varchar',

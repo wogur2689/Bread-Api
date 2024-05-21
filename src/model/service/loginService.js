@@ -4,7 +4,7 @@
  * Spring의 service 로직
  * 해당 데이터를 가지고 검증 및 조작
  */
-const log = require("../../util/logUtil");
+const { logInfo } = require("../../util/logUtil");
 const LoginRepository = require("../repository/loginRepository");
 //const OAuth2Server = require('oauth2-server');
 
@@ -28,8 +28,8 @@ class Login {
     async login() {
         const client = this.body;
         try {
-            const response = await LoginRepository.getPw(client);
-            console.log(response);
+            const response = await LoginRepository.getPw(client.userId);
+            logInfo(`${response.json} 데이터 `); 
             return response;
         } catch (err) {
             return { success: false, msg: err}
