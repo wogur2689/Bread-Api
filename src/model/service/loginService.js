@@ -16,8 +16,10 @@ class Login {
     //회원가입
     async signUp() {
         const client = this.body;
+        logInfo(client.usr);
         try {
             const response = await LoginRepository.userSave(client);
+            logInfo(`${response.json} 데이터 `);
             return response;
         } catch (err) {
             return { success: false, msg: err}

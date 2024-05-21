@@ -14,7 +14,7 @@ create table users (
 	user_id VARCHAR(20) NOT null,
 	name VARCHAR(20) NOT NULL,
 	pwd VARCHAR(20) NOT NULL,
-	age INT(5) NOT NULL,
+	age INT NOT NULL,
 	phone VARCHAR(20) NOT NULL,
 	address VARCHAR(20) NOT NULL
 );
