@@ -15,11 +15,11 @@ const myDataSource = new DataSource({
 //db 연결
 myDataSource.initialize()
     .then(() => {
-        console.log("Data Source has been initialized!");
+        logger.info("Data Source has been initialized!");
     })
     .catch((err) => {
-        console.log("Data Source fail initialized!");
-        console.log(err);
+        logger.error("Data Source fail initialized!");
+        logger.error(err);
     })
 
 /* default */
