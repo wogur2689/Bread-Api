@@ -1,6 +1,6 @@
 {
-    "insertUserInfo": "INSERT INTO(user_id, password, name, nick_name, phone, address) VALUES(?, ?, ?, ?, ?, ?)",
-    "login": "SELECT password FROM user_info Where user_id = ? LIMIT 1",
+    "insertUserInfo": "INSERT INTO users(user_id, name, pwd, age, phone, address) VALUES(?, ?, ?, ?, ?, ?)",
+    "selectGetPwd": "SELECT pwd FROM users Where user_id = ?",
     "getProductList": "SELECT * FROM product Where create_at between ? and ?",
     "getProductDetail": "SELECT * FROM product Where id = ? LIMIT 1"
 }

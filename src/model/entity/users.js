@@ -1,7 +1,7 @@
 //require("reflect-metadata");
-const { Entity, PrimaryGeneratedColumn, Column, BaseEntity, EntitySchema} = require("typeorm");
+const {BaseEntity, EntitySchema} = require("typeorm");
 
-// TS적용시 사용가능
+// TS전환시 사용
 // class User extends BaseEntity {
 //     consstructor() {
 //         super();

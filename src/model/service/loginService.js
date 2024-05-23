@@ -6,7 +6,6 @@
  */
 const { logInfo } = require("../../util/logUtil");
 const LoginRepository = require("../repository/loginRepository");
-//const OAuth2Server = require('oauth2-server');
 
 class Login {
     constructor(body) {
@@ -16,10 +15,10 @@ class Login {
     //회원가입
     async signUp() {
         const client = this.body;
-        logInfo(client.usr);
         try {
             const response = await LoginRepository.userSave(client);
-            logInfo(`${response.json} 데이터 `);
+            logInfo(`데이터`);
+            logInfo(response);
             return response;
         } catch (err) {
             return { success: false, msg: err}
@@ -30,7 +29,7 @@ class Login {
     async login() {
         const client = this.body;
         try {
-            const response = await LoginRepository.getPw(client.userId);
+            const response = await LoginRepository.getPw(client);
             logInfo(`${response.json} 데이터 `); 
             return response;
         } catch (err) {

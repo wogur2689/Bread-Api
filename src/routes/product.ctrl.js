@@ -23,40 +23,6 @@ const productCtrl = {
 
         log(response, url);
         return res.status(url.status).json(response); //json 반환
-    },
-
-    /**
-     * 일기 수정
-     */
-    update: async (req, res) => {
-        const daily = new Daily(req.body); //서비스 객체 생성
-        const response = await daily.update(); //수정
-
-        const url = {
-            method:"POST",
-            path:"/update",
-            status: response.err ? 404 : 200,
-        }
-
-        log(response, url);
-        return res.status(url.status).json(response); //json 반환
-    },
-
-    /**
-     * 일기 삭제
-     */
-    delete: async (req, res) => {
-        const daily = new Daily(req.body); //서비스 객체 생성
-        const response = await daily.delete();
-
-        const url = {
-            method:"POST",
-            path:"/delete",
-            status: response.err ? 404 : 200,
-        }
-
-        log(response, url);
-        return res.status(url.status).json(response); //json 반환
     }
 }
 

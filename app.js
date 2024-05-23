@@ -9,6 +9,9 @@ const app = express();
 
 dotenv.config();
 
+//라우팅
+const routes = require('./src/routes');
+
 //cors
 const corsOptions = {
     origin: 'http://localhost:8080', // 허용할 도메인
@@ -16,15 +19,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-//라우팅
-//const home = require('./src/routes/main');
-const login = require('./src/routes');
-
 //app 세팅
-//app.engine('html', require('ejs').renderFile);
 app.use(express.urlencoded({ extended: true })); //URL을 통해 전달되는 데이터 한글, 공백 등과 같은 문자가 포함될 경우 제대로 인식되지 않는 문제 해결
 app.use(express.json()); //json데이터 파싱
-//app.use("/", home); //미들웨어 등록
-app.use("/user", login); //미들웨어 등록
+
+app.use("/", routes); //미들웨어 등록
 
 module.exports = app;
