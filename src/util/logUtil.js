@@ -5,11 +5,11 @@ const logger = require('../config/logger');
 const log = (response, url) => {
     if (response.err) {
         logger.error(
-            `${url.method} ${url.path} ${url.status} Response: ${response.success} ${response.err}`
+            `${url.method} ${url.path} ${url.status} Response: ${response.code} ${response.err}`
         );
     } else {
         logger.info(
-            `${url.method} ${url.path} ${url.status} Response: ${response.success} ${response.msg || ""}`
+            `${url.method} ${url.path} ${url.status} Response: ${response.code} ${response.msg || ""}`
         );
     }
 };

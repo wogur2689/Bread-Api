@@ -13,22 +13,32 @@ const loadQuery = require("../query/queryLoader");
 class LoginRepository {
 
     //회원가입
-    static userSave(data) { 
+    static userSave(param) { 
         return new Promise((resolve, reject) => {
             const query = loadQuery('insertUserInfo');
-            db.query(query, [data.userId, data.name, data.pwd, data.age, data.phone, data.address], (err, data) => {
+            db.query(query, [param.userId, param.name, param.pwd, param.age, param.phone, param.address], (err, data) => {
                 if(err) reject(`${err}`);
-                else resolve(data);
+                else resolve({code : "0000", msg : "success"});
             });
         });
     }
 
-    static getPw(data) {
+    static getPw(param) {
         return new Promise((resolve, reject) => {
-            const query = loadQuery('login');
-            db.query(query, data.userId ,(err, data) => {
+            const query = loadQuery('selectGetPwd');
+            db.query(query, param.userId, (err, data) => {
                 if(err) reject(`${err}`);
-                else resolve(data);
+                else {
+                    if(data.length > 0) {
+                        if(param.pwd == data[0].pwd) {
+                            resolve({code : "0000", msg : "success"})
+                        }
+                        else {
+                            resolve({code : "1001", msg : "비밀번호가 틀립니다."});
+                        }
+                    }
+                    else resolve({code : "1002", msg : "입력하신 아이디는 없는 사용자입니다."}); 
+                }
             });
         });
     }

@@ -4,7 +4,6 @@
  * Spring의 service 로직
  * 해당 데이터를 가지고 검증 및 조작
  */
-const { logInfo } = require("../../util/logUtil");
 const LoginRepository = require("../repository/loginRepository");
 
 class Login {
@@ -17,11 +16,9 @@ class Login {
         const client = this.body;
         try {
             const response = await LoginRepository.userSave(client);
-            logInfo(`데이터`);
-            logInfo(response);
             return response;
         } catch (err) {
-            return { success: false, msg: err}
+            return { code: "9999", msg: err}
         }
     }
 
@@ -30,10 +27,9 @@ class Login {
         const client = this.body;
         try {
             const response = await LoginRepository.getPw(client);
-            logInfo(`${response.json} 데이터 `); 
             return response;
         } catch (err) {
-            return { success: false, msg: err}
+            return { code: "9999", msg: err}
         } 
     }
 }

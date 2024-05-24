@@ -24,6 +24,7 @@ const process = {
     signUp: async (req, res) => {
         const service = new loginService(req.body);
         let response = await service.signUp();
+    
         const url = {
             method:"POST",
             path:"/signUp",
