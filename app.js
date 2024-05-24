@@ -5,6 +5,7 @@
 const express = require('express');
 const dotenv = require("dotenv");
 const cors = require('cors');
+const session = require('express-session');
 const app = express();
 
 dotenv.config();
@@ -18,6 +19,14 @@ const corsOptions = {
     optionsSuccessStatus: 200 // 일부 오래된 브라우저를 위한 옵션
 };
 app.use(cors(corsOptions));
+
+//세션
+app.use(session({
+    secret: 'bread7577',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // HTTPS를 사용하는 경우 true로 설정
+}));
 
 //app 세팅
 app.use(express.urlencoded({ extended: true })); //URL을 통해 전달되는 데이터 한글, 공백 등과 같은 문자가 포함될 경우 제대로 인식되지 않는 문제 해결

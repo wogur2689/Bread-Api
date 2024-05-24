@@ -17,6 +17,10 @@ const process = {
             status: response.err ? 500 : 200,
         }
         log(response, url);
+        //로그인 성공시 세션에 유저정보 저장
+        if(response.code == "0000") {
+            req.session.user = { id: req.body.userId };
+        }
         return res.status(url.status).json(response); //json 반환
     },
 
@@ -32,6 +36,15 @@ const process = {
         }
         log(response, url);
         return res.status(url.status).json(response); //json 반환
+    },
+
+    //로그인 세션 인증
+    protected: (req, res) => {
+        if (req.session.user) {
+            res.json({ code: '0000', msg: 'Access granted', user: req.session.user });
+        } else {
+            res.status(401).json({ code: '1003', msg: '로그인 해주세요.' });
+        }
     }
 }
 
