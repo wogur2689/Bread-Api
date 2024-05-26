@@ -15,14 +15,14 @@ const routes = require('./src/routes');
 
 //cors
 const corsOptions = {
-    origin: 'http://localhost:8080', // 허용할 도메인
+    origin: process.env.FRONT_END_URL, // 허용할 도메인
     optionsSuccessStatus: 200 // 일부 오래된 브라우저를 위한 옵션
 };
 app.use(cors(corsOptions));
 
 //세션
 app.use(session({
-    secret: 'bread7577',
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false } // HTTPS를 사용하는 경우 true로 설정
