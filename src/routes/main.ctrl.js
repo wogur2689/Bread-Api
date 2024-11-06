@@ -11,7 +11,7 @@ const process = {
         log.logInfo("GET / ping");
         const url = {
             method:"GET",
-            path:"/ping",
+            path:"/api/ping",
             status: 200,
         }
 

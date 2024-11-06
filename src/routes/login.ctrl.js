@@ -13,7 +13,7 @@ const process = {
         let response = await service.login();
         const url = {
             method:"POST",
-            path:"/login",
+            path:"/api/login",
             status: response.err ? 500 : 200,
         }
         log(response, url);
@@ -31,7 +31,7 @@ const process = {
     
         const url = {
             method:"POST",
-            path:"/signUp",
+            path:"/api/signUp",
             status: response.err ? 500 : 200,
         }
         log(response, url);

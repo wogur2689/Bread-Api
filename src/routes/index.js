@@ -5,12 +5,15 @@ const express = require('express'); //express import
 const router = express.Router();
 const mainCtrl = require('./main.ctrl');
 const loginCtrl = require('./login.ctrl');
+const menuCtrl = require('./menu.ctrl');
 
 //라우팅하는 것들은 라우트에서 관리
-// 첫번째는 url, 두번째는 서버로 보낼 요청값과 결과값
-router.get("/ping", mainCtrl.ping);
-router.post("/login", loginCtrl.login);
-router.post("/signUp", loginCtrl.signUp);
+//첫번째는 url, 두번째는 서버로 보낼 요청값과 결과값
+//여기선 전부 api니 기본적으로 /api를 붙일것.
+router.get("/api/ping", mainCtrl.ping);
+router.post("/api/login", loginCtrl.login);
+router.post("/api/signUp", loginCtrl.signUp);
+router.post("/api/gnbMenu", menuCtrl.menu);
 
 //이미지 불러오기
 // router.get("/image/:name", (req, res) => {
