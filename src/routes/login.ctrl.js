@@ -38,6 +38,30 @@ const process = {
         return res.status(url.status).json(response); //json 반환
     },
 
+    //마이페이지 데이터
+    mypage: async (req, res) => {
+        let response = 200;
+        const url = {
+            method:"POST",
+            path:"/api/getMyPageData",
+            status: response.err ? 500 : 200,
+        }
+        log(response, url);
+        return res.status(url.status).json(response); //json 반환
+    },
+
+    //마이페이지 정보 수정
+    myPageUpdate: async (req, res) => {
+        let response = 200;
+        const url = {
+            method:"POST",
+            path:"/api/myPageUpdate",
+            status: response.err ? 500 : 200,
+        }
+        log(response, url);
+        return res.status(url.status).json(response); //json 반환
+    },
+
     //로그인 세션 인증
     protected: (req, res) => {
         if (req.session.user) {
