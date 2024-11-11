@@ -16,8 +16,10 @@ const routes = require('./src/routes');
 //cors
 const corsOptions = {
     origin: process.env.FRONT_END_URL, // 허용할 도메인
+    credentials: true, // 쿠키를 공유하기 위해 설정
     optionsSuccessStatus: 200 // 일부 오래된 브라우저를 위한 옵션
 };
+
 app.use(cors(corsOptions));
 
 //세션
