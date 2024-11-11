@@ -32,6 +32,17 @@ class Login {
             return { code: "9999", msg: err}
         } 
     }
+
+    //마이페이지 데이터
+    async getMyPageData() {
+        const client = this.body;
+        try {
+            const response = await LoginRepository.getMyPageData(client);
+            return response;
+        } catch (err) {
+            return { code: "9999", msg: err}
+        }
+    }
 }
 
 module.exports = Login;

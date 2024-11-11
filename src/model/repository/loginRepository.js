@@ -42,6 +42,16 @@ class LoginRepository {
             });
         });
     }
+
+    static getMyPageData(param) {
+        return new Promise((resolve, reject) => {
+            const query = loadQuery('getMyPageData');
+            db.query(query, param.userId, (err, data) => {
+                if(err) reject(`${err}`);
+                else resolve({code : "0000", msg : "success", data: data})
+            });
+        });
+    }
 }
 
 module.exports = LoginRepository;

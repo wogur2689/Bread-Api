@@ -40,7 +40,8 @@ const process = {
 
     //마이페이지 데이터
     mypage: async (req, res) => {
-        let response = 200;
+        const service = new loginService(req.body);
+        let response = await service.getMyPageData();
         const url = {
             method:"POST",
             path:"/api/getMyPageData",
