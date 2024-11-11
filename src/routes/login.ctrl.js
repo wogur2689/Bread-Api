@@ -64,9 +64,9 @@ const process = {
     },
 
     //로그인 세션 인증
-    protected: (req, res) => {
+    isLogin: (req, res) => {
         if (req.session.user) {
-            res.json({ code: '0000', msg: 'Access granted', user: req.session.user });
+            res.status(200).json({ code: '0000', msg: 'Access granted', user: req.session.user });
         } else {
             res.status(401).json({ code: '1003', msg: '로그인 해주세요.' });
         }

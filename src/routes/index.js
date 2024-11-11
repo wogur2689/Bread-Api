@@ -11,8 +11,12 @@ const menuCtrl = require('./menu.ctrl');
 //첫번째는 url, 두번째는 서버로 보낼 요청값과 결과값
 //여기선 전부 api니 기본적으로 /api를 붙일것.
 router.get("/api/ping", mainCtrl.ping);
+router.get("/api/loginCheck", loginCtrl.isLogin);
+router.get("/api/getMypageData", loginCtrl.mypage);
+
 router.post("/api/login", loginCtrl.login);
 router.post("/api/signUp", loginCtrl.signUp);
+router.post("/api/myPageUpdate", loginCtrl.myPageUpdate);
 router.post("/api/gnbMenu", menuCtrl.menu);
 
 //이미지 불러오기
