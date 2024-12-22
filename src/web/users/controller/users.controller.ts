@@ -1,6 +1,7 @@
 import { Controller, Post, Req, UseGuards, Get, Body } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { UsersService } from './users.service';
+import { UsersService } from '../service/users.service';
+import { usersDto } from '../dto/users.dto';
 
 @Controller('users')
 export class UsersController {
@@ -9,9 +10,11 @@ export class UsersController {
     //login
     @UseGuards(AuthGuard('local'))
     @Post('login')
-    async login(@Req() req) {
-        const result = await this.usersService.validateUser(req.username, req.password);
-        return { message: 'Logged in', user: req.user };
+    async login(@Body() usersDto: usersDto) {
+        const result = await this.usersService.login(usersDto);
+        if(result.valueOf()) {
+            return { message: 'Logged in' };
+        }
     }
 
     //logout
