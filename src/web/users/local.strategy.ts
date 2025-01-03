@@ -12,11 +12,11 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         super(); // 기본적으로 username과 password 필드를 사용
     }
 
-    async validate(username: string, password: string): Promise<any> {
-        const user = this.usersService.validateUser(username, password);
-        if (!user) {
-            throw new Error('Unauthorized');
-        }
-        return user;
-    }
+    // async validate(username: string, password: string): Promise<any> {
+    //     // const user = this.usersService.validateUser(username, password);
+    //     if (!user) {
+    //         throw new Error('Unauthorized');
+    //     }
+    //     return user;
+    // }
 }

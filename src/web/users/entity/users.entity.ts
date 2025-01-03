@@ -5,34 +5,42 @@ export class Users {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'varchar', length: 20, nullable: false })
+    @Column({ name: 'user_id', type: 'varchar', length: 20, nullable: false })
     userId: string;
 
-    @Column({ type: 'varchar', length: 20, nullable: false })
+    @Column({ name: 'password', type: 'varchar', length: 20, nullable: false })
     password: string;
     
-    @Column({ type: 'varchar', length: 20, nullable: false })
+    @Column({ name: 'name', type: 'varchar', length: 20, nullable: false })
     name: string;
 
-    @Column({ type: 'varchar', length: 50, nullable: false })
+    @Column({ name: 'email', type: 'varchar', length: 50, nullable: false })
     email: string;
 
-    @Column({ type: 'varchar', length: 20, nullable: false })
+    @Column({ name: 'nick_name', type: 'varchar', length: 20, nullable: false })
     nickName: string;
 
-    @Column({ type: 'varchar', length: 20, nullable: false })
+    @Column({ name: 'birth_date', type: 'varchar', length: 20, nullable: false })
     birthDate: string;
 
-    @Column({ type: 'varchar', length: 20, nullable: false })
+    @Column({ name: 'phone_number', type: 'varchar', length: 20, nullable: false })
     phoneNumber: string;
 
-    @Column({ type: 'varchar', length: 200, nullable: false })
+    @Column({ name: 'address', type: 'varchar', length: 200, nullable: false })
     address: string;
 
-    @Column({ type: 'varchar', length: 20, nullable: false })
+    @Column({ name: 'role', type: 'varchar', length: 20, nullable: false })
     role: string;
 
-
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: false })
     createdAt: Date;
+
+    @Column({ name: 'created_by', type: 'timestamp', length: 10, nullable: false})
+    createdBy: string;
+    
+    @Column({ name: 'updated_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    updatedAt: Date;
+
+    @Column({ name: 'updated_by', type: 'timestamp', length: 10})
+    updatedBy: string;
 }
