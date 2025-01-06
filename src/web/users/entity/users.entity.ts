@@ -1,5 +1,6 @@
 import { BaseTimeEntity } from "src/common/entity/time.entity";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { usersDto } from "../dto/users.dto";
 
 @Entity()
 export class Users extends BaseTimeEntity {
@@ -32,4 +33,18 @@ export class Users extends BaseTimeEntity {
 
     @Column({ name: 'role', type: 'varchar', length: 20, nullable: false })
     role: string;
+
+    static toEntity(dto: usersDto): Users {
+        const entity = new Users();
+        entity.userId = dto.userId;
+        entity.password = dto.password;
+        entity.name = dto.name;
+        entity.email = dto.email;
+        entity.nickName = dto.nickName;
+        entity.birthDate = dto.birthDate;
+        entity.phoneNumber = dto.phoneNumber;
+        entity.address = dto.address;
+        entity.role = 'user';
+        return entity;
+    }
 }

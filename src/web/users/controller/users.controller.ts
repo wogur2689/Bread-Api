@@ -39,15 +39,13 @@ export class UsersController {
     }
 
     //sign Up
-    @Post('signup')
-    async signup(@Body() body: {username: string, password: string}) {
-        const hashPassword = await this.usersService.hashPassword(body.password);
-
-        const newUser = {
-            username: body.username,
-            password: hashPassword
-        };
-
-        return {message: '회원가입이 완료되었습니다.', user:newUser};
+    @Post('signUp')
+    async signUp(@Body() usersDto: usersDto) {
+        const result = await this.usersService.signUp(usersDto);
+        if(result) {
+            return {message: '회원가입이 완료되었습니다.'};
+        } else {
+            return {message: '회원가입에 실패하였습니다.'};
+        }
     }
 }
