@@ -5,6 +5,14 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  //CORS
+  app.enableCors({
+    origin: 'http://localhost:3000', // 허용할 도메인
+    methods: 'GET,POST', // 허용할 HTTP 메서드
+    allowedHeaders: 'Content-Type,Authorization', // 허용할 헤더
+    credentials: true,  // 세션 쿠키 및 자격 증명 허용
+  });
+
   //세션 미들웨어 추가
   app.use(
     session({

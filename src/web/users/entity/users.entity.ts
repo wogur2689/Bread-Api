@@ -10,7 +10,7 @@ export class Users extends BaseTimeEntity {
     @Column({ name: 'user_id', type: 'varchar', length: 20, nullable: false })
     userId: string;
 
-    @Column({ name: 'password', type: 'varchar', length: 20, nullable: false })
+    @Column({ name: 'password', type: 'varchar', length: 200, nullable: false })
     password: string;
     
     @Column({ name: 'name', type: 'varchar', length: 20, nullable: false })
