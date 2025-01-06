@@ -1,7 +1,8 @@
+import { BaseTimeEntity } from "src/common/entity/time.entity";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Users {
+export class Users extends BaseTimeEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -31,16 +32,4 @@ export class Users {
 
     @Column({ name: 'role', type: 'varchar', length: 20, nullable: false })
     role: string;
-
-    @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: false })
-    createdAt: Date;
-
-    @Column({ name: 'created_by', type: 'timestamp', length: 10, nullable: false})
-    createdBy: string;
-    
-    @Column({ name: 'updated_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    updatedAt: Date;
-
-    @Column({ name: 'updated_by', type: 'timestamp', length: 10})
-    updatedBy: string;
 }
