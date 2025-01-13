@@ -1,6 +1,7 @@
 import { Controller, Post, Req, Get, Body } from '@nestjs/common';
 import { UsersService } from '../service/users.service';
 import { usersDto } from '../dto/users.dto';
+import { ApiResponse, createApiResponse } from 'src/common/api/apiResponse';
 
 @Controller('users')
 export class UsersController {
@@ -8,19 +9,12 @@ export class UsersController {
 
     //login
     @Post('login')
-    async login(@Body() usersDto: usersDto) {
+    async login(@Body() usersDto: usersDto): Promise<ApiResponse<any>> {
         const result = await this.usersService.login(usersDto);
-        console.log('데이터');
         if (result.valueOf()) {
-            return {
-                success: true,
-                message: 'Logged in',
-            };
+            return createApiResponse(200, '로그인 성공', null);
         } else {
-            return {
-                success: false,
-                message: '로그인에 실패하였습니다.'
-            };
+            return createApiResponse(200, '로그인 실패', null);
         }
     }
 
@@ -47,12 +41,12 @@ export class UsersController {
 
     //sign Up
     @Post('signUp')
-    async signUp(@Body() usersDto: usersDto) {
+    async signUp(@Body() usersDto: usersDto): Promise<ApiResponse<any>> {
         const result = await this.usersService.signUp(usersDto);
-        if(result) {
-            return {message: '회원가입이 완료되었습니다.'};
+        if (result.valueOf()) {
+            return createApiResponse(200, '회원가입 성공', null);
         } else {
-            return {message: '회원가입에 실패하였습니다.'};
+            return createApiResponse(200, '회원가입 실패', null);
         }
     }
 }
