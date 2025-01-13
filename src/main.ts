@@ -21,6 +21,8 @@ async function bootstrap() {
       saveUninitialized: false, // 초기화되지 않은 세션을 저장할지 여부
       cookie: {
         maxAge: 3600000, // 쿠키 유효기간 (밀리초)
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // HTTPS 사용시 true
       },
     })
   )
