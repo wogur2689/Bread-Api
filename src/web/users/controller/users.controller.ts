@@ -1,5 +1,4 @@
-import { Controller, Post, Req, UseGuards, Get, Body } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller, Post, Req, Get, Body } from '@nestjs/common';
 import { UsersService } from '../service/users.service';
 import { usersDto } from '../dto/users.dto';
 
@@ -8,12 +7,20 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     //login
-    @UseGuards(AuthGuard('local'))
     @Post('login')
     async login(@Body() usersDto: usersDto) {
         const result = await this.usersService.login(usersDto);
-        if(result.valueOf()) {
-            return { message: 'Logged in' };
+        console.log('데이터');
+        if (result.valueOf()) {
+            return {
+                success: true,
+                message: 'Logged in',
+            };
+        } else {
+            return {
+                success: false,
+                message: '로그인에 실패하였습니다.'
+            };
         }
     }
 

@@ -1,4 +1,4 @@
-import * as session from "express-session";
+import * as session from 'express-session';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
@@ -7,10 +7,10 @@ async function bootstrap() {
 
   //CORS
   app.enableCors({
-    origin: 'http://localhost:3000', // 허용할 도메인
-    methods: 'GET,POST', // 허용할 HTTP 메서드
-    allowedHeaders: 'Content-Type,Authorization', // 허용할 헤더
-    credentials: true,  // 세션 쿠키 및 자격 증명 허용
+    origin: 'http://localhost:3000', // 또는 특정 도메인: 'http://localhost:3000'
+    credentials: true,
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   //세션 미들웨어 추가
