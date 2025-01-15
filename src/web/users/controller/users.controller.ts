@@ -1,4 +1,4 @@
-import { Controller, Post, Req, Get, Body } from '@nestjs/common';
+import { Controller, Post, Req, Get, Body, Query } from '@nestjs/common';
 import { UsersService } from '../service/users.service';
 import { usersDto } from '../dto/users.dto';
 import { ApiResponse, createApiDataResponse, createApiResponse } from 'src/common/api/apiResponse';
@@ -12,7 +12,7 @@ export class UsersController {
     async login(@Body() usersDto: usersDto): Promise<ApiResponse<any>> {
         const result = await this.usersService.login(usersDto);
         if (result.valueOf()) {
-            return createApiResponse(200, '로그인 성공');
+            return createApiDataResponse(200, '로그인 성공', usersDto.userId);
         } else {
             return createApiResponse(200, '로그인 실패');
         }
@@ -42,19 +42,18 @@ export class UsersController {
 
     //login check
     @Get('check')
-    status(@Req() req) {
-        if (req.isAuthenticated()) {
-            return { loggedIn: true, user: req.user };
-        } else {
-            return { loggedIn: false };
+    async status(@Req() req): Promise<ApiResponse<any>> {
+        if(req.isAuthenticated()) {
+            return createApiResponse(200, '로그인 해주세요');    
         }
+        return createApiDataResponse(200, '로그인이 완료되었습니다.');
     }
 
     @Get('mypage')
-    async myPage(@Req() req, @Body() usersDto: usersDto): Promise<ApiResponse<any>> {
-        if (!req.isAuthenticated()) return createApiResponse(200, '로그인 해주세요');
+    async myPage(@Query() usersDto: usersDto): Promise<ApiResponse<any>> {
+        // if (!req.isAuthenticated()) return createApiResponse(200, '로그인 해주세요');
         
         const result = await this.usersService.myPage(usersDto);
-        return createApiDataResponse(200, '회원가입 성공', result);
+        return createApiDataResponse(200, '조회 성공', result);
     }
 }

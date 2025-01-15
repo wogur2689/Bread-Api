@@ -45,18 +45,16 @@ export class UsersService {
     }
 
     //마이페이지
-    async myPage(usersDto: usersDto): Promise<usersDto> {
-        let result: usersDto;
+    async myPage(usersDto: usersDto): Promise<usersDto | null> {
+        let result: usersDto | null = null;
         try {
             //유저 아이디로 DB 조회
             const user = await this.usersRepository.findOneBy({ userId: usersDto.userId });
             if (user) {
-                result = usersDto;
+                result = user;
             }
-            return null;
         } catch(err) {
             console.log(err);
-            result = null;
         }
         return result;
     }
