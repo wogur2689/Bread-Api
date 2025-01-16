@@ -2,6 +2,7 @@ import { Controller, Post, Req, Get, Body, Query } from '@nestjs/common';
 import { UsersService } from '../service/users.service';
 import { usersDto } from '../dto/users.dto';
 import { ApiResponse, createApiDataResponse, createApiResponse } from 'src/common/api/apiResponse';
+import { ApiResCode } from 'src/common/api/apiResCode';
 
 @Controller('users')
 export class UsersController {
@@ -12,9 +13,9 @@ export class UsersController {
     async login(@Body() usersDto: usersDto): Promise<ApiResponse<any>> {
         const result = await this.usersService.login(usersDto);
         if (result.valueOf()) {
-            return createApiDataResponse(200, '로그인 성공', usersDto.userId);
+            return createApiDataResponse(ApiResCode.API_0000.code, ApiResCode.API_0000.msg, usersDto.userId);
         } else {
-            return createApiResponse(200, '로그인 실패');
+            return createApiResponse(ApiResCode.API_9999.code, ApiResCode.API_9999.msg);
         }
     }
 
@@ -23,9 +24,9 @@ export class UsersController {
     async signUp(@Body() usersDto: usersDto): Promise<ApiResponse<any>> {
         const result = await this.usersService.signUp(usersDto);
         if (result.valueOf()) {
-            return createApiResponse(200, '회원가입 성공');
+            return createApiResponse(ApiResCode.API_0000.code, ApiResCode.API_0000.msg);
         } else {
-            return createApiResponse(200, '회원가입 실패');
+            return createApiResponse(ApiResCode.API_9999.code, ApiResCode.API_9999.msg);
         }
     }
 
@@ -44,16 +45,16 @@ export class UsersController {
     @Get('check')
     async status(@Req() req): Promise<ApiResponse<any>> {
         if(req.isAuthenticated()) {
-            return createApiResponse(200, '로그인 해주세요');    
+            return createApiResponse(ApiResCode.API_0000.code, ApiResCode.API_0000.msg);    
         }
-        return createApiDataResponse(200, '로그인이 완료되었습니다.');
+        return createApiDataResponse(ApiResCode.API_9999.code, ApiResCode.API_9999.msg);
     }
 
+    //mypage
     @Get('mypage')
     async myPage(@Query() usersDto: usersDto): Promise<ApiResponse<any>> {
-        // if (!req.isAuthenticated()) return createApiResponse(200, '로그인 해주세요');
-        
+        if(usersDto.userId == null) return createApiResponse(ApiResCode.API_9999.code, ApiResCode.API_9999.msg);
         const result = await this.usersService.myPage(usersDto);
-        return createApiDataResponse(200, '조회 성공', result);
+        return createApiDataResponse(ApiResCode.API_0000.code, ApiResCode.API_0000.msg, result);
     }
 }

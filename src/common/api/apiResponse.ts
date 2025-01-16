@@ -1,12 +1,12 @@
 export interface ApiResponse<T> {
-    code: number;
+    code: string;
     message: string;
     data?: T;
 }
 
 //code, msg return
 function createApiResponse<T>(
-    code: number,
+    code: string,
     message: string,
 ): ApiResponse<T> {
     return { code, message };
@@ -14,7 +14,7 @@ function createApiResponse<T>(
 
 //code, msg, data return
 function createApiDataResponse<T>(
-    code: number,
+    code: string,
     message: string,
     data?: T,
 ): ApiResponse<T> {
