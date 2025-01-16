@@ -30,17 +30,6 @@ export class UsersController {
         }
     }
 
-    //logout
-    @Get('logout')
-    logout(@Req() req) {
-        req.logout((err) => {
-            if (err) {
-                throw new Error('Logout failed');
-            }
-        });
-        return { message: 'Logged out' };
-    }
-
     //login check
     @Get('check')
     async status(@Req() req): Promise<ApiResponse<any>> {
