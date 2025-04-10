@@ -5,9 +5,9 @@ import { MenuService } from '../service/menu.service';
 export class MenuController {
     constructor(private readonly menuService: MenuService) {}
 
-    //logout
+    //menuList
     @Get('menuList')
     menuList(@Req() req, @Res() res) {
-        res.status(200).json();
+        res.status(200).json(this.menuService.menuList());
     }
 }

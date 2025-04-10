@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Menu } from '../entity/menu.entity';
+import { menuDto } from '../dto/menu.dto';
 
 @Injectable()
 export class MenuService {
@@ -10,4 +11,13 @@ export class MenuService {
         private menuRepository: Repository<Menu>, //repository 주입
     ) {}
     
+    //메뉴 리스트
+    async menuList(): Promise<menuDto[]> {
+        try {
+            return await this.menuRepository.find();
+        } catch(err) {
+            console.log(err);
+            return [];
+        }
+    }
 }
