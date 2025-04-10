@@ -1,5 +1,8 @@
-import { Controller, Get, Req, Res } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { MenuService } from '../service/menu.service';
+import { menuDto } from '../dto/menu.dto';
+import { ApiResponse, createApiDataResponse } from 'src/common/api/apiResponse';
+import { ApiResCode } from 'src/common/api/apiResCode';
 
 @Controller('menu')
 export class MenuController {
@@ -7,7 +10,8 @@ export class MenuController {
 
     //menuList
     @Get('menuList')
-    menuList(@Req() req, @Res() res) {
-        res.status(200).json(this.menuService.menuList());
+    async menuList() : Promise<ApiResponse<any>>  {
+        const result : menuDto[] = await this.menuService.menuList();
+        return createApiDataResponse(ApiResCode.API_0000.code, ApiResCode.API_0000.msg, result);
     }
 }
