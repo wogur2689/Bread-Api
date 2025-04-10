@@ -1,8 +1,9 @@
 import { BaseTimeEntity } from "src/common/entity/time.entity";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { menuDto } from "../dto/menu.dto";
 
 @Entity()
-export class menu extends BaseTimeEntity {
+export class Menu extends BaseTimeEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -30,17 +31,16 @@ export class menu extends BaseTimeEntity {
     @Column({ name: 'menu_role', type: 'varchar', nullable: false })
     menuRole: string;
 
-    // static toEntity(dto: usersDto): Users {
-    //     const entity = new Users();
-    //     entity.userId = dto.userId; 
-    //     entity.password = dto.password;
-    //     entity.name = dto.name;
-    //     entity.email = dto.email;
-    //     entity.nickName = dto.nickName;
-    //     entity.birthDate = dto.birthDate;
-    //     entity.phoneNumber = dto.phoneNumber;
-    //     entity.address = dto.address;
-    //     entity.role = 'user';
-    //     return entity;
-    // }
+    static toEntity(dto: menuDto): Menu {
+        const entity = new Menu();
+        entity.menuName = dto.menuName;   
+        entity.parentId = dto.parentId;
+        entity.menuLevel = dto.menuLevel;
+        entity.menuUrl = dto.menuUrl;
+        entity.menuDesc = dto.menuDesc;
+        entity.sortOrder = dto.sortOrder;
+        entity.isVisible = dto.isVisible;
+        entity.menuRole = dto.menuRole;
+        return entity;
+    }
 }
