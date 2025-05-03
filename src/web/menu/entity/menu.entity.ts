@@ -19,10 +19,10 @@ export class Menu extends BaseTimeEntity {
     @Column({ name: 'menu_url', type: 'varchar', length: 512, nullable: false})
     menuUrl: string;
 
-    @Column({ name: 'menu_desc', type: 'varchar', length: 200 })
+    @Column({ name: 'menu_desc', type: 'varchar', length: 200, nullable: true })
     menuDesc: string;
 
-    @Column({ name: 'sort_order', type: 'int'})
+    @Column({ name: 'sort_order', type: 'int', nullable: true})
     sortOrder: number;
 
     @Column({ name: 'is_visible', type: 'varchar', length: 1, nullable: false, default: "N" })
