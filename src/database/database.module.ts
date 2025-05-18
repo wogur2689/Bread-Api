@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Subscriber } from 'rxjs';
 import { Menu } from 'src/web/menu/entity/menu.entity';
+import { Product } from 'src/web/product/entity/product.entity';
 import { Users } from 'src/web/users/entity/users.entity';
 
 @Module({
@@ -13,7 +14,7 @@ import { Users } from 'src/web/users/entity/users.entity';
         username: process.env.DB_USER || "root", // 사용자 이름
         password: process.env.DB_PASS || "1234", // 비밀번호
         database: process.env.DB_NAME || "bread", // 데이터베이스 이름
-        entities: [Users, Menu],
+        entities: [Users, Menu, Product],
         autoLoadEntities: false, // 엔티티 자동 로드
         synchronize: true, // 개발 중에만 true
         subscribers: [Subscriber]
