@@ -16,7 +16,7 @@ import { Users } from 'src/web/users/entity/users.entity';
         database: process.env.DB_NAME || "bread", // 데이터베이스 이름
         entities: [Users, Menu, Product],
         autoLoadEntities: false, // 엔티티 자동 로드
-        synchronize: true, // 개발 중에만 true
+        synchronize: false, // 개발 중에만 true
         subscribers: [Subscriber]
       }),
     ],
