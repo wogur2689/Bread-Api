@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Query, Req } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from '../entity/product.entity';
@@ -11,13 +11,23 @@ export class ProductService {
         private productRepository: Repository<Product>, //repository 주입
     ) {}
     
-    //메뉴 리스트
+    //상품 리스트
     async productList(): Promise<productDto[]> {
         try {
             return await this.productRepository.find();
         } catch(err) {
             console.log(err);
             return [];
+        }
+    }
+
+    //상품 상세 조회
+    async productDetail(productDto: productDto): Promise<productDto | null> {
+        try {
+            return await this.productRepository.findOneBy({id : productDto.id});
+        } catch(err) {
+            console.log(err);
+            return null;
         }
     }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ProductService } from '../service/product.service';
 import { productDto } from '../dto/product.dto';
 import { ApiResponse, createApiDataResponse } from 'src/common/api/apiResponse';
@@ -12,6 +12,13 @@ export class ProductController {
     @Get('productList')
     async productList() : Promise<ApiResponse<any>>  {
         const result : productDto[] = await this.productService.productList();
+        return createApiDataResponse(ApiResCode.API_0000.code, ApiResCode.API_0000.msg, result);
+    }
+
+    //productDetail
+    @Get('product')
+    async productDetail(@Query() productDto: productDto): Promise<ApiResponse<any>> {
+        const result : productDto = await this.productService.productDetail(productDto);
         return createApiDataResponse(ApiResCode.API_0000.code, ApiResCode.API_0000.msg, result);
     }
 }
