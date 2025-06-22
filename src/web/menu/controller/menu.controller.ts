@@ -9,7 +9,7 @@ export class MenuController {
     constructor(private readonly menuService: MenuService) {}
 
     //menuList
-    @Get('menuList')
+    @Get('list')
     async menuList() : Promise<ApiResponse<any>>  {
         const result : menuDto[] = await this.menuService.menuList();
         return createApiDataResponse(ApiResCode.API_0000.code, ApiResCode.API_0000.msg, result);
