@@ -1,27 +1,27 @@
-export interface ApiResponse<T> {
+export interface ApiRes<T> {
     code: string;
     message: string;
     data?: T;
 }
 
 //code, msg return
-function createApiResponse<T>(
+function createApiRes<T>(
     code: string,
     message: string,
-): ApiResponse<T> {
+): ApiRes<T> {
     return { code, message };
 }
 
 //code, msg, data return
-function createApiDataResponse<T>(
+function createApiDataRes<T>(
     code: string,
     message: string,
     data?: T,
-): ApiResponse<T> {
+): ApiRes<T> {
     return { code, message, data };
 }
 
 export {
-    createApiResponse,
-    createApiDataResponse
+    createApiRes,
+    createApiDataRes
 }
