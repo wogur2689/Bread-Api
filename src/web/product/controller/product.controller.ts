@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ProductService } from '../service/product.service';
 import { productDto } from '../dto/product.dto';
 import { ApiRes, createApiDataRes } from 'src/common/api/apiResponse';
@@ -20,11 +20,11 @@ export class ProductController {
     }
 
     //productDetail
-    @Get('detail')
+    @Get('detail/:id')
     @ApiOperation({ summary: '상품 상세 정보 조회' })
     @ApiResponse({ status: 200, description: '성공적으로 상품 상세 정보 반환' })
-    async productDetail(@Query() productDto: productDto): Promise<ApiRes<any>> {
-        const result : productDto = await this.productService.productDetail(productDto);
+    async productDetail(@Param('id') id: number): Promise<ApiRes<any>> {
+        const result : productDto = await this.productService.productDetail(id);
         return createApiDataRes(ApiResCode.API_0000.code, ApiResCode.API_0000.msg, result);
     }
 }

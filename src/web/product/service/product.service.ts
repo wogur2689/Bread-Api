@@ -22,9 +22,9 @@ export class ProductService {
     }
 
     //상품 상세 조회
-    async productDetail(productDto: productDto): Promise<productDto | null> {
+    async productDetail(key: number): Promise<productDto | null> {
         try {
-            return await this.productRepository.findOneBy({id : productDto.id});
+            return await this.productRepository.findOneBy({id : key});
         } catch(err) {
             console.log(err);
             return null;
