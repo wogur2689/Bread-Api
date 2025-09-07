@@ -16,11 +16,15 @@ export class Product extends BaseTimeEntity {
     @Column({ name: 'image_url', type: 'varchar', length: 200, nullable: false })
     imageUrl: string;
 
+    @Column({ name: 'desc', type: 'varchar', length: 2000, nullable: true })
+    desc: string;
+
     static toEntity(dto: productDto): Product {
         const entity = new Product();
         entity.name = dto.name;   
         entity.price = dto.price;
         entity.imageUrl = dto.imageUrl;
+        entity.desc = dto.desc;
         return entity;
     }
 }
