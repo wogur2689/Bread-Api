@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Logger } from '@nestjs/common';
 import { ProductService } from '../service/product.service';
 import { productDto } from '../dto/product.dto';
 import { ApiRes, createApiDataRes } from 'src/common/api/apiResponse';
@@ -9,6 +9,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 @Controller('product')
 export class ProductController {
     constructor(private readonly productService: ProductService) {}
+    private readonly logger = new Logger(ProductController.name);
 
     //productList
     @Get('list')
