@@ -37,7 +37,10 @@
     "rxjs": "^7.8.1",
     "swagger": "^0.7.5",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "crypto-js": "^3.1.9-1",
+    "cryptojs": "^2.5.3",
+    "utf8": "^3.0.0"
   },
   "devDependencies": {
     "@nestjs/schematics": "^10.0.0",
