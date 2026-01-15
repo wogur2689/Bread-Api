@@ -4,27 +4,29 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from '../entity/users.entity';
 import { Repository } from 'typeorm';
 import { usersDto } from '../dto/users.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(Users)
         private usersRepository: Repository<Users>, //repository 주입
+        private readonly jwtService: JwtService,
     ) {}
 
     //로그인
-    async login(usersDto: usersDto): Promise<boolean> {
-        let result: boolean = true;
+    async login(usersDto: usersDto): Promise<{ accessToken: string; userId: string } | null> {
         try {
             const user = await this.usersRepository.findOneBy({ userId: usersDto.userId });
             if (user && (await bcrypt.compare(usersDto.password, user.password))) {
-                return result;
+                const payload = { sub: user.id, userId: user.userId };
+                const accessToken = this.jwtService.sign(payload);
+                return { accessToken, userId: user.userId };
             }
         } catch(err) {
             console.log(err);
-            result = false;
         }
-        return result;
+        return null;
     }
 
     //회원가입

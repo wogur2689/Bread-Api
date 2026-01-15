@@ -1,4 +1,5 @@
-import { Controller, Post, Req, Get, Body, Query } from '@nestjs/common';
+import { Controller, Post, Req, Get, Body, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../jwt-auth.guard';
 import { UsersService } from '../service/users.service';
 import { usersDto } from '../dto/users.dto';
 import { ApiRes, createApiDataRes, createApiRes } from 'src/common/api/apiResponse';
@@ -15,8 +16,13 @@ export class UsersController {
     @ApiResponse({ status: 200, description: '로그인 성공' })
     async login(@Body() usersDto: usersDto): Promise<ApiRes<any>> {
         const result = await this.usersService.login(usersDto);
-        if (result.valueOf()) {
-            return createApiDataRes(ApiResCode.API_0000.code, ApiResCode.API_0000.msg, usersDto.userId);
+        if (result) {
+            // result: { accessToken, userId }
+            return createApiDataRes(
+                ApiResCode.API_0000.code,
+                ApiResCode.API_0000.msg,
+                result, // { accessToken, userId } 를 data 에 담아서 리턴
+            );
         } else {
             return createApiRes(ApiResCode.API_9999.code, ApiResCode.API_9999.msg);
         }
@@ -33,23 +39,25 @@ export class UsersController {
             return createApiRes(ApiResCode.API_9999.code, ApiResCode.API_9999.msg);
         }
     }
-
+    
+    @UseGuards(JwtAuthGuard)
     @Get('check')
     @ApiOperation({ summary: '로그인 체크' })
-    @ApiResponse({ status: 200, description: '로그인 세션 유지' })
-    async status(@Req() req): Promise<ApiRes<any>> {
-        if(req.isAuthenticated()) {
-            return createApiRes(ApiResCode.API_0000.code, ApiResCode.API_0000.msg);    
-        }
-        return createApiDataRes(ApiResCode.API_9999.code, ApiResCode.API_9999.msg);
+    @ApiResponse({ status: 200, description: 'JWT 유효성 체크' })
+    async status(): Promise<ApiRes<any>> {
+        return createApiRes(ApiResCode.API_0000.code, ApiResCode.API_0000.msg);
     }
-
+    
+    @UseGuards(JwtAuthGuard)
     @Get('mypage')
     @ApiOperation({ summary: '마이페이지' })
     @ApiResponse({ status: 200, description: '마이페이지 정보 조회 성공' })
-    async myPage(@Query() usersDto: usersDto): Promise<ApiRes<any>> {
-        if(usersDto.userId == null) return createApiRes(ApiResCode.API_9999.code, ApiResCode.API_9999.msg);
-        const result = await this.usersService.myPage(usersDto);
+    async myPage(@Req() req): Promise<ApiRes<any>> {
+        const userId = req.user?.userId;
+        if (!userId) {
+            return createApiRes(ApiResCode.API_9999.code, ApiResCode.API_9999.msg);
+        }
+        const result = await this.usersService.myPage({ userId } as any);
         return createApiDataRes(ApiResCode.API_0000.code, ApiResCode.API_0000.msg, result);
     }
 }
