@@ -5,9 +5,16 @@ import { MenuModule } from './web/menu/module/menu.module';
 import { DatabaseModule } from './database/database.module';
 import { Subscriber } from 'rxjs';
 import { ProductModule } from './web/product/module/product.module';
+import { PaymentModule } from './web/payment/module/payment.module';
 
 @Module({
-  imports: [DatabaseModule, UsersModule, MenuModule, ProductModule],
+  imports: [
+    DatabaseModule, 
+    UsersModule,
+    MenuModule,
+    ProductModule,
+    PaymentModule
+  ],
   controllers: [AppController],
   providers: [Subscriber]
 })
