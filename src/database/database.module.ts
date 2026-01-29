@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Subscriber } from 'rxjs';
+import { Subscriber } from 'src/common/Subscriber';
 import { Menu } from 'src/web/menu/entity/menu.entity';
 import { Product } from 'src/web/product/entity/product.entity';
 import { Users } from 'src/web/users/entity/users.entity';

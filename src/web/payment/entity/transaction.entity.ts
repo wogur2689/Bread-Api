@@ -8,7 +8,7 @@ export enum PaymentStatus {
     CANCELLED = 'CANCELLED',        // 결제 취소
 }
 
-@Entity('transaction')
+@Entity()
 @Index(['orderId'])  // 주문번호로 빠른 조회를 위한 인덱스
 @Index(['tid'])      // TID로 빠른 조회를 위한 인덱스
 export class Transaction extends BaseTimeEntity {

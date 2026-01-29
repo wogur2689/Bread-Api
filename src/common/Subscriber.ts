@@ -7,6 +7,14 @@ export class Subscriber implements EntitySubscriberInterface {
    */
   beforeInsert(event: InsertEvent<any>): void {
     if (this.isBaseEntity(event.entity)) {
+      const now = new Date();
+      // createdAt과 updatedAt이 설정되지 않은 경우에만 설정
+      if (!event.entity.createdAt) {
+        event.entity.createdAt = now;
+      }
+      if (!event.entity.updatedAt) {
+        event.entity.updatedAt = now;
+      }
       event.entity.createdBy = 'system'; // 사용자 정보는 실제 시스템에서 설정
       event.entity.updatedBy = 'system';
     }
@@ -17,6 +25,10 @@ export class Subscriber implements EntitySubscriberInterface {
    */
   beforeUpdate(event: UpdateEvent<any>): void {
     if (this.isBaseEntity(event.entity)) {
+      // updatedAt이 설정되지 않은 경우에만 설정
+      if (!event.entity.updatedAt) {
+        event.entity.updatedAt = new Date();
+      }
       event.entity.updatedBy = 'system'; // 사용자 정보는 실제 시스템에서 설정
     }
   }

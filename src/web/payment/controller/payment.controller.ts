@@ -1,6 +1,6 @@
 import { Controller, Post, Get, Body, Param, Logger, Query } from '@nestjs/common';
 import { PaymentService } from '../service/payment.service';
-import { PaymentRequestDto, PaymentCallbackDto, TransactionDto } from '../dto/payment.dto';
+import { PaymentRequestDto, PaymentCallbackDto, TransactionDto, PaymentCancelDto, PaymentInfoDto } from '../dto/payment.dto';
 import { ApiRes, createApiDataRes } from 'src/common/api/apiResponse';
 import { ApiResCode } from 'src/common/api/apiResCode';
 import { ApiOperation, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
@@ -29,6 +29,52 @@ export class PaymentController {
             return createApiDataRes(
                 ApiResCode.API_9999.code, 
                 `결제 요청 생성 실패: ${error.message}`, 
+                null
+            );
+        }
+    }
+
+    /**
+     * 결제 정보 조회 (EdiDate 포함)
+     * 프론트엔드에서 결제창 호출 시 필요한 정보를 반환
+     */
+    @Get('info/:orderId')
+    @ApiOperation({ summary: '결제 정보 조회 (EdiDate 포함)' })
+    @ApiResponse({ status: 200, description: '결제 정보 조회 성공' })
+    async getPaymentInfo(@Param('orderId') orderId: string): Promise<ApiRes<PaymentInfoDto>> {
+        try {
+            const transaction = await this.paymentService.getTransactionByOrderId(orderId);
+            
+            if (!transaction) {
+                return createApiDataRes(
+                    ApiResCode.API_9999.code, 
+                    '거래내역을 찾을 수 없습니다.', 
+                    null
+                );
+            }
+
+            // EdiDate 생성 (결제 요청용: MID + Moid + Amt + 상점키)
+            const ediDate = this.paymentService.generateEdiDate(
+                transaction.orderId,
+                transaction.totalAmt.toString()
+            );
+
+            const paymentInfo: PaymentInfoDto = {
+                orderId: transaction.orderId,
+                mid: process.env.NICEPAY_MID || '',
+                moid: transaction.orderId,
+                amt: transaction.totalAmt.toString(),
+                goodsName: transaction.productName,
+                ediDate: ediDate,
+                returnUrl: process.env.NICEPAY_RETURN_URL || 'http://localhost:3000/payment/success',
+            };
+
+            return createApiDataRes(ApiResCode.API_0000.code, ApiResCode.API_0000.msg, paymentInfo);
+        } catch (error) {
+            this.logger.error(`결제 정보 조회 실패: ${error.message}`);
+            return createApiDataRes(
+                ApiResCode.API_9999.code, 
+                `결제 정보 조회 실패: ${error.message}`, 
                 null
             );
         }
@@ -72,6 +118,7 @@ export class PaymentController {
                 Moid: query.Moid,
                 Amt: query.Amt,
                 PayMethod: query.PayMethod,
+                EdiDate: query.EdiDate,  // 위변조 검증용 해시값
                 CardCode: query.CardCode,
                 CardName: query.CardName,
                 AuthDate: query.AuthDate,
@@ -163,6 +210,29 @@ export class PaymentController {
             return createApiDataRes(
                 ApiResCode.API_9999.code, 
                 `거래내역 목록 조회 실패: ${error.message}`, 
+                null
+            );
+        }
+    }
+
+    /**
+     * 결제 취소
+     * 완료된 결제를 취소합니다 (전체 취소 또는 부분 취소)
+     */
+    @Post('cancel')
+    @ApiOperation({ summary: '결제 취소' })
+    @ApiResponse({ status: 200, description: '결제 취소가 완료되었습니다' })
+    @ApiBody({ type: PaymentCancelDto })
+    async cancelPayment(@Body() cancelDto: PaymentCancelDto): Promise<ApiRes<TransactionDto>> {
+        try {
+            this.logger.log(`결제 취소 요청: orderId=${cancelDto.orderId}, cancelAmt=${cancelDto.cancelAmt || '전체'}`);
+            const result = await this.paymentService.cancelPayment(cancelDto);
+            return createApiDataRes(ApiResCode.API_0000.code, ApiResCode.API_0000.msg, result);
+        } catch (error) {
+            this.logger.error(`결제 취소 실패: ${error.message}`);
+            return createApiDataRes(
+                ApiResCode.API_9999.code, 
+                `결제 취소 실패: ${error.message}`, 
                 null
             );
         }

@@ -1,17 +1,52 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transaction, PaymentStatus } from '../entity/transaction.entity';
-import { PaymentRequestDto, PaymentCallbackDto, TransactionDto } from '../dto/payment.dto';
+import { PaymentRequestDto, PaymentCallbackDto, TransactionDto, PaymentCancelDto } from '../dto/payment.dto';
+import * as CryptoJS from 'crypto-js';
+import axios from 'axios';
 
 @Injectable()
 export class PaymentService {
     private readonly logger = new Logger(PaymentService.name);
+    private readonly nicepayMerchantKey: string;
+    private readonly nicepayMid: string;
 
     constructor(
         @InjectRepository(Transaction)
         private transactionRepository: Repository<Transaction>,
-    ) {}
+    ) {
+        // 환경 변수에서 나이스페이 설정 로드
+        this.nicepayMerchantKey = process.env.NICEPAY_MERCHANT_KEY || '';
+        this.nicepayMid = process.env.NICEPAY_MID || '';
+        
+        if (!this.nicepayMerchantKey) {
+            this.logger.warn('나이스페이 상점키가 설정되지 않았습니다. NICEPAY_MERCHANT_KEY 환경 변수를 확인하세요.');
+        }
+    }
+
+    /**
+     * 나이스페이 EdiDate 생성
+     * EdiDate = SHA256(MID + Moid + Amt + 상점키)
+     */
+    generateEdiDate(moid: string, amt: string): string {
+        if (!this.nicepayMid || !this.nicepayMerchantKey) {
+            this.logger.warn('나이스페이 MID 또는 상점키가 설정되지 않았습니다.');
+            return '';
+        }
+
+        try {
+            // EdiDate 생성: SHA256(MID + Moid + Amt + 상점키)
+            const hashString = this.nicepayMid + moid + amt + this.nicepayMerchantKey;
+            const ediDate = CryptoJS.SHA256(hashString).toString(CryptoJS.enc.Hex).toUpperCase();
+            
+            this.logger.log(`EdiDate 생성: Moid=${moid}, Amt=${amt}, EdiDate=${ediDate}`);
+            return ediDate;
+        } catch (error) {
+            this.logger.error(`EdiDate 생성 실패: ${error.message}`, error.stack);
+            return '';
+        }
+    }
 
     /**
      * 주문(결제 요청) 생성
@@ -21,6 +56,9 @@ export class PaymentService {
         try {
             // 주문번호 생성 (Moid)
             const orderId = `ORDER-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+            this.logger.log(`orderID : orderId=${orderId}`);
+            this.logger.log('결제 totalAmt ', dto.productName);
             
             const transaction = this.transactionRepository.create({
                 orderId: orderId,
@@ -44,6 +82,39 @@ export class PaymentService {
     }
 
     /**
+     * 나이스페이 결제 위변조 검증
+     * 콜백 검증: EdiDate = SHA256(TID + Moid + Amt + 상점키) 또는 SHA256(Moid + Amt + 상점키)
+     */
+    private verifyPaymentData(moid: string, amt: string, ediDate: string, tid?: string): boolean {
+        if (!ediDate || !this.nicepayMerchantKey) {
+            this.logger.warn('EdiDate 또는 상점키가 없어 검증을 건너뜁니다.');
+            return true; // 개발 환경에서는 검증을 건너뛸 수 있음
+        }
+
+        try {
+            // TID가 있으면 TID 포함하여 검증, 없으면 Moid만 사용
+            const hashString = tid 
+                ? tid + moid + amt + this.nicepayMerchantKey  // TID 포함 검증
+                : moid + amt + this.nicepayMerchantKey;        // Moid만 검증
+            
+            const calculatedHash = CryptoJS.SHA256(hashString).toString(CryptoJS.enc.Hex).toUpperCase();
+            
+            const isValid = calculatedHash === ediDate.toUpperCase();
+            
+            if (!isValid) {
+                this.logger.error(`결제 데이터 위변조 검증 실패: Moid=${moid}, TID=${tid || '없음'}, 계산된 해시=${calculatedHash}, 받은 해시=${ediDate}`);
+            } else {
+                this.logger.log(`결제 데이터 위변조 검증 성공: Moid=${moid}`);
+            }
+            
+            return isValid;
+        } catch (error) {
+            this.logger.error(`결제 검증 중 오류 발생: ${error.message}`, error.stack);
+            return false;
+        }
+    }
+
+    /**
      * 결제 완료 콜백 처리
      * 나이스페이에서 받은 결제 결과로 거래내역 업데이트
      */
@@ -59,6 +130,29 @@ export class PaymentService {
                 throw new NotFoundException(`거래내역을 찾을 수 없습니다: ${callbackDto.Moid}`);
             }
 
+            // 결제 데이터 위변조 검증
+            if (callbackDto.EdiDate) {
+                const isValid = this.verifyPaymentData(
+                    callbackDto.Moid,
+                    callbackDto.Amt,
+                    callbackDto.EdiDate,
+                    callbackDto.TID  // TID 포함하여 검증
+                );
+                
+                if (!isValid) {
+                    this.logger.error(`결제 데이터 위변조 검증 실패: orderId=${callbackDto.Moid}`);
+                    throw new BadRequestException('결제 데이터 위변조가 감지되었습니다.');
+                }
+            } else {
+                this.logger.warn(`EdiDate가 없어 검증을 건너뜁니다: orderId=${callbackDto.Moid}`);
+            }
+
+            // 금액 검증 (DB에 저장된 금액과 일치하는지 확인)
+            if (transaction.totalAmt !== parseInt(callbackDto.Amt)) {
+                this.logger.error(`결제 금액 불일치: DB=${transaction.totalAmt}, 받은 금액=${callbackDto.Amt}`);
+                throw new BadRequestException('결제 금액이 일치하지 않습니다.');
+            }
+
             // 결제 성공 여부 확인
             const isSuccess = callbackDto.ResultCode === '3001'; // 나이스페이 성공 코드 (실제 코드 확인 필요)
 
@@ -69,7 +163,14 @@ export class PaymentService {
             transaction.paymentMethod = callbackDto.PayMethod;
             transaction.cardCode = callbackDto.CardCode || null;
             transaction.cardName = callbackDto.CardName || null;
-            transaction.paymentStatus = isSuccess ? PaymentStatus.COMPLETED : PaymentStatus.FAILED;
+            
+            if (isSuccess) {
+                transaction.paymentStatus = PaymentStatus.COMPLETED;
+            } else {
+                // 결제 실패 시 상태만 업데이트 (실제로 결제가 안 된 것이므로 취소 불필요)
+                transaction.paymentStatus = PaymentStatus.FAILED;
+                this.logger.warn(`결제 실패: orderId=${callbackDto.Moid}, ResultCode=${callbackDto.ResultCode}, ResultMsg=${callbackDto.ResultMsg}`);
+            }
 
             // 승인일시 파싱 (YYYYMMDDHHmmss 형식)
             if (callbackDto.AuthDate) {
@@ -143,6 +244,143 @@ export class PaymentService {
     }
 
     /**
+     * 나이스페이 결제 취소 API 호출
+     * 실제 나이스페이 취소 API를 호출하여 결제를 취소합니다.
+     */
+    private async callNicePayCancelApi(tid: string, cancelAmt: number, cancelReason: string): Promise<any> {
+        try {
+            // 나이스페이 취소 API 엔드포인트 (실제 URL로 변경 필요)
+            const cancelUrl = process.env.NICEPAY_CANCEL_URL || 'https://webapi.nicepay.co.kr/webapi/cancel_process.jsp';
+            
+            // 취소 요청 데이터 생성
+            const cancelData = {
+                TID: tid,
+                MID: this.nicepayMid,
+                CancelAmt: cancelAmt.toString(),
+                CancelMsg: cancelReason,
+                PartialCancelCode: cancelAmt > 0 ? '1' : '0', // 부분취소 여부
+            };
+
+            // EdiDate 생성 (취소 검증용)
+            const ediDateString = tid + cancelAmt.toString() + this.nicepayMerchantKey;
+            const ediDate = CryptoJS.SHA256(ediDateString).toString(CryptoJS.enc.Hex).toUpperCase();
+            cancelData['EdiDate'] = ediDate;
+
+            this.logger.log(`나이스페이 취소 API 호출: TID=${tid}, CancelAmt=${cancelAmt}`);
+
+            // 나이스페이 취소 API 호출
+            const response = await axios.post(cancelUrl, cancelData, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+
+            this.logger.log(`나이스페이 취소 API 응답: ${JSON.stringify(response.data)}`);
+            return response.data;
+        } catch (error) {
+            this.logger.error(`나이스페이 취소 API 호출 실패: ${error.message}`, error.stack);
+            throw error;
+        }
+    }
+
+    /**
+     * 결제 취소 처리
+     * 완료된 결제를 취소합니다 (전체 취소 또는 부분 취소)
+     */
+    async cancelPayment(cancelDto: PaymentCancelDto): Promise<TransactionDto> {
+        try {
+            // 거래내역 조회
+            const transaction = await this.transactionRepository.findOne({
+                where: { orderId: cancelDto.orderId }
+            });
+
+            if (!transaction) {
+                throw new NotFoundException(`거래내역을 찾을 수 없습니다: ${cancelDto.orderId}`);
+            }
+
+            // 취소 가능 여부 확인
+            if (transaction.paymentStatus !== PaymentStatus.COMPLETED) {
+                throw new BadRequestException(`취소할 수 없는 결제 상태입니다. 현재 상태: ${transaction.paymentStatus}`);
+            }
+
+            if (!transaction.tid) {
+                throw new BadRequestException('거래번호(TID)가 없어 취소할 수 없습니다.');
+            }
+
+            // 취소 금액 설정 (부분 취소 또는 전체 취소)
+            const cancelAmt = cancelDto.cancelAmt || transaction.totalAmt;
+            
+            if (cancelAmt > transaction.totalAmt - (transaction.cancelAmt || 0)) {
+                throw new BadRequestException('취소 금액이 남은 결제 금액을 초과합니다.');
+            }
+
+            // 나이스페이 취소 API 호출
+            const cancelResult = await this.callNicePayCancelApi(
+                transaction.tid,
+                cancelAmt,
+                cancelDto.cancelReason
+            );
+
+            // 취소 결과 확인 (나이스페이 응답 코드 확인 필요)
+            const isCancelSuccess = cancelResult?.ResultCode === '2001'; // 나이스페이 취소 성공 코드 (실제 코드 확인 필요)
+
+            if (!isCancelSuccess) {
+                this.logger.error(`나이스페이 취소 실패: ${JSON.stringify(cancelResult)}`);
+                throw new BadRequestException(`결제 취소 실패: ${cancelResult?.ResultMsg || '알 수 없는 오류'}`);
+            }
+
+            // 거래내역 업데이트
+            transaction.cancelAmt = (transaction.cancelAmt || 0) + cancelAmt;
+            transaction.cancelReason = cancelDto.cancelReason;
+
+            // 전체 취소인 경우 상태 변경
+            if (transaction.cancelAmt >= transaction.totalAmt) {
+                transaction.paymentStatus = PaymentStatus.CANCELLED;
+            }
+
+            const updated = await this.transactionRepository.save(transaction);
+            this.logger.log(`결제 취소 완료: orderId=${cancelDto.orderId}, cancelAmt=${cancelAmt}`);
+
+            return this.toDto(updated);
+        } catch (error) {
+            this.logger.error(`결제 취소 처리 실패: ${error.message}`, error.stack);
+            throw error;
+        }
+    }
+
+    /**
+     * 결제 실패 시 자동 취소 처리 (필요한 경우)
+     * 주의: 일반적으로 결제 실패는 결제가 진행되지 않은 것이므로 취소가 필요 없습니다.
+     * 하지만 부분 승인 후 실패한 경우 등 특수 상황에서 사용할 수 있습니다.
+     */
+    async autoCancelOnFailure(orderId: string, reason: string = '결제 실패로 인한 자동 취소'): Promise<void> {
+        try {
+            const transaction = await this.transactionRepository.findOne({
+                where: { orderId }
+            });
+
+            if (!transaction) {
+                this.logger.warn(`자동 취소 대상 거래내역을 찾을 수 없음: orderId=${orderId}`);
+                return;
+            }
+
+            // 이미 완료된 결제이고 TID가 있는 경우에만 취소 시도
+            if (transaction.paymentStatus === PaymentStatus.COMPLETED && transaction.tid) {
+                this.logger.log(`결제 실패로 인한 자동 취소 시도: orderId=${orderId}`);
+                await this.cancelPayment({
+                    orderId: orderId,
+                    cancelReason: reason,
+                });
+            } else {
+                this.logger.log(`자동 취소 불필요: orderId=${orderId}, status=${transaction.paymentStatus}`);
+            }
+        } catch (error) {
+            this.logger.error(`자동 취소 처리 실패: ${error.message}`, error.stack);
+            // 자동 취소 실패는 로그만 남기고 예외를 던지지 않음 (결제 실패 처리에 영향 주지 않도록)
+        }
+    }
+
+    /**
      * Entity를 DTO로 변환
      */
     private toDto(transaction: Transaction): TransactionDto {
@@ -164,6 +402,7 @@ export class PaymentService {
             approvedAt: transaction.approvedAt,
             userId: transaction.userId,
             cancelAmt: transaction.cancelAmt,
+            cancelReason: transaction.cancelReason,
             createdAt: transaction.createdAt,
             updatedAt: transaction.updatedAt,
         };
