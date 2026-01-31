@@ -18,6 +18,8 @@ export class PaymentInfoDto {
     amt: string;
     goodsName: string;
     ediDate: string;
+    signData: string;
+    payMethod: string;
     returnUrl: string;
 }
 
@@ -29,7 +31,8 @@ export class PaymentCallbackDto {
     Moid: string;              // 주문번호
     Amt: string;               // 금액
     PayMethod: string;         // 결제수단
-    EdiDate?: string;          // 위변조 검증용 해시값
+    MID?: string;              // 가맹점 MID
+    Signature?: string;        // 승인 응답 위변조 검증값
     CardCode?: string;         // 카드사코드
     CardName?: string;         // 카드사명
     AuthDate?: string;         // 승인일시 (YYYYMMDDHHmmss)

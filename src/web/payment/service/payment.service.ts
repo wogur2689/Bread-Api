@@ -27,25 +27,48 @@ export class PaymentService {
 
     /**
      * 나이스페이 EdiDate 생성
-     * EdiDate = SHA256(MID + Moid + Amt + 상점키)
+     * EdiDate = YYYYMMDDHHMISS (요청 시간)
      */
-    generateEdiDate(moid: string, amt: string): string {
-        if (!this.nicepayMid || !this.nicepayMerchantKey) {
-            this.logger.warn('나이스페이 MID 또는 상점키가 설정되지 않았습니다.');
-            return '';
-        }
+    generateEdiDate(date: Date = new Date()): string {
+        const yyyy = date.getFullYear().toString();
+        const mm = (date.getMonth() + 1).toString().padStart(2, '0');
+        const dd = date.getDate().toString().padStart(2, '0');
+        const hh = date.getHours().toString().padStart(2, '0');
+        const mi = date.getMinutes().toString().padStart(2, '0');
+        const ss = date.getSeconds().toString().padStart(2, '0');
+        return `${yyyy}${mm}${dd}${hh}${mi}${ss}`;
+    }
 
-        try {
-            // EdiDate 생성: SHA256(MID + Moid + Amt + 상점키)
-            const hashString = this.nicepayMid + moid + amt + this.nicepayMerchantKey;
-            const ediDate = CryptoJS.SHA256(hashString).toString(CryptoJS.enc.Hex).toUpperCase();
-            
-            this.logger.log(`EdiDate 생성: Moid=${moid}, Amt=${amt}, EdiDate=${ediDate}`);
-            return ediDate;
-        } catch (error) {
-            this.logger.error(`EdiDate 생성 실패: ${error.message}`, error.stack);
+    /**
+     * 나이스페이 Amt 12자리 포맷 (매뉴얼: 12 byte, 제로패딩)
+     * 폼 전송값과 SignData 계산 시 반드시 동일한 문자열 사용해야 위변조 검증 통과
+     */
+    formatAmt12(amount: number): string {
+        return String(amount).padStart(12, '0');
+    }
+
+    /**
+     * 나이스페이 SignData 생성 (위변조 검증 데이터)
+     * SignData = hex(sha256(EdiDate + MID + Amt + MerchantKey))
+     * - Amt: 반드시 12자리 제로패딩 (formatAmt12 사용)
+     * - EdiDate: YYYYMMDDHHMISS 14자
+     */
+    generateSignData(ediDate: string, amt12: string): string {
+        const mid = this.nicepayMid || 'nictest00m';
+        const key = this.nicepayMerchantKey || '';
+        if (!mid) {
+            this.logger.warn('나이스페이 MID가 설정되지 않았습니다.');
             return '';
         }
+        const merchantKey = key || (mid.toLowerCase() === 'nictest00m' ? 'EYzu8jGGMfqaDEp76gSckuvnaHHu+bC4opsSN6lHv3b2lurNYkVXrZ7Z1AoqQnXI3eLuaUFyoRNC6FkrzVjceg==' : '');
+        if (!merchantKey) {
+            this.logger.warn('나이스페이 상점키가 설정되지 않았습니다. NICEPAY_MERCHANT_KEY 환경 변수를 확인하세요.');
+            return '';
+        }
+        const plainText = `${ediDate}${mid}${amt12}${merchantKey}`;
+        const signData = CryptoJS.SHA256(plainText).toString(CryptoJS.enc.Hex);
+        this.logger.debug(`SignData plainText(Amt 제외) length: ${plainText.length}, amt12: ${amt12}`);
+        return signData;
     }
 
     /**
@@ -82,36 +105,13 @@ export class PaymentService {
     }
 
     /**
-     * 나이스페이 결제 위변조 검증
-     * 콜백 검증: EdiDate = SHA256(TID + Moid + Amt + 상점키) 또는 SHA256(Moid + Amt + 상점키)
+     * 나이스페이 승인 응답 Signature 검증
+     * Signature = hex(sha256(TID + MID + Amt + MerchantKey))
      */
-    private verifyPaymentData(moid: string, amt: string, ediDate: string, tid?: string): boolean {
-        if (!ediDate || !this.nicepayMerchantKey) {
-            this.logger.warn('EdiDate 또는 상점키가 없어 검증을 건너뜁니다.');
-            return true; // 개발 환경에서는 검증을 건너뛸 수 있음
-        }
-
-        try {
-            // TID가 있으면 TID 포함하여 검증, 없으면 Moid만 사용
-            const hashString = tid 
-                ? tid + moid + amt + this.nicepayMerchantKey  // TID 포함 검증
-                : moid + amt + this.nicepayMerchantKey;        // Moid만 검증
-            
-            const calculatedHash = CryptoJS.SHA256(hashString).toString(CryptoJS.enc.Hex).toUpperCase();
-            
-            const isValid = calculatedHash === ediDate.toUpperCase();
-            
-            if (!isValid) {
-                this.logger.error(`결제 데이터 위변조 검증 실패: Moid=${moid}, TID=${tid || '없음'}, 계산된 해시=${calculatedHash}, 받은 해시=${ediDate}`);
-            } else {
-                this.logger.log(`결제 데이터 위변조 검증 성공: Moid=${moid}`);
-            }
-            
-            return isValid;
-        } catch (error) {
-            this.logger.error(`결제 검증 중 오류 발생: ${error.message}`, error.stack);
-            return false;
-        }
+    private verifyPaymentSignature(tid: string, mid: string, amt: string, signature: string): boolean {
+        if (!signature || !this.nicepayMerchantKey) return true;
+        const calculated = CryptoJS.SHA256(`${tid}${mid}${amt}${this.nicepayMerchantKey}`).toString(CryptoJS.enc.Hex);
+        return calculated.toLowerCase() === signature.toLowerCase();
     }
 
     /**
@@ -130,21 +130,13 @@ export class PaymentService {
                 throw new NotFoundException(`거래내역을 찾을 수 없습니다: ${callbackDto.Moid}`);
             }
 
-            // 결제 데이터 위변조 검증
-            if (callbackDto.EdiDate) {
-                const isValid = this.verifyPaymentData(
-                    callbackDto.Moid,
-                    callbackDto.Amt,
-                    callbackDto.EdiDate,
-                    callbackDto.TID  // TID 포함하여 검증
-                );
-                
-                if (!isValid) {
-                    this.logger.error(`결제 데이터 위변조 검증 실패: orderId=${callbackDto.Moid}`);
+            // 승인 응답 위변조(Signature) 검증 (응답에 Signature/MID가 있는 경우)
+            if (callbackDto.Signature && callbackDto.MID && callbackDto.TID) {
+                const ok = this.verifyPaymentSignature(callbackDto.TID, callbackDto.MID, callbackDto.Amt, callbackDto.Signature);
+                if (!ok) {
+                    this.logger.error(`결제 Signature 위변조 검증 실패: orderId=${callbackDto.Moid}`);
                     throw new BadRequestException('결제 데이터 위변조가 감지되었습니다.');
                 }
-            } else {
-                this.logger.warn(`EdiDate가 없어 검증을 건너뜁니다: orderId=${callbackDto.Moid}`);
             }
 
             // 금액 검증 (DB에 저장된 금액과 일치하는지 확인)
@@ -153,8 +145,15 @@ export class PaymentService {
                 throw new BadRequestException('결제 금액이 일치하지 않습니다.');
             }
 
-            // 결제 성공 여부 확인
-            const isSuccess = callbackDto.ResultCode === '3001'; // 나이스페이 성공 코드 (실제 코드 확인 필요)
+            // 결제 성공 여부 확인 (결제수단별 성공코드)
+            const payMethod = (callbackDto.PayMethod || '').toUpperCase();
+            const isSuccess =
+                (payMethod === 'CARD' && callbackDto.ResultCode === '3001') ||
+                (payMethod === 'BANK' && callbackDto.ResultCode === '4000') ||
+                (payMethod === 'VBANK' && callbackDto.ResultCode === '4100') ||
+                (payMethod === 'CELLPHONE' && callbackDto.ResultCode === 'A000') ||
+                // 일부 간편결제/계좌는 0000으로 오는 경우가 있어 보수적으로 허용
+                (callbackDto.ResultCode === '0000');
 
             // 거래내역 업데이트
             transaction.tid = callbackDto.TID;

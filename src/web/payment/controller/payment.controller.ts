@@ -53,19 +53,20 @@ export class PaymentController {
                 );
             }
 
-            // EdiDate 생성 (결제 요청용: MID + Moid + Amt + 상점키)
-            const ediDate = this.paymentService.generateEdiDate(
-                transaction.orderId,
-                transaction.totalAmt.toString()
-            );
+            // EdiDate/Amt(12자리)/SignData 생성 - 폼에 넣는 Amt와 SignData 계산에 쓰는 Amt가 동일해야 위변조 검증 통과
+            const ediDate = this.paymentService.generateEdiDate();
+            const amt12 = this.paymentService.formatAmt12(transaction.totalAmt);
+            const signData = this.paymentService.generateSignData(ediDate, amt12);
 
             const paymentInfo: PaymentInfoDto = {
                 orderId: transaction.orderId,
-                mid: process.env.NICEPAY_MID || '',
+                mid: process.env.NICEPAY_MID || 'nictest00m',
                 moid: transaction.orderId,
-                amt: transaction.totalAmt.toString(),
+                amt: amt12,
                 goodsName: transaction.productName,
                 ediDate: ediDate,
+                signData: signData,
+                payMethod: 'CARD',
                 returnUrl: process.env.NICEPAY_RETURN_URL || 'http://localhost:3000/payment/success',
             };
 
@@ -118,7 +119,8 @@ export class PaymentController {
                 Moid: query.Moid,
                 Amt: query.Amt,
                 PayMethod: query.PayMethod,
-                EdiDate: query.EdiDate,  // 위변조 검증용 해시값
+                MID: query.MID,
+                Signature: query.Signature,
                 CardCode: query.CardCode,
                 CardName: query.CardName,
                 AuthDate: query.AuthDate,
