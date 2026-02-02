@@ -55,14 +55,13 @@ export class PaymentController {
 
             // EdiDate/Amt(12자리)/SignData 생성 - 폼에 넣는 Amt와 SignData 계산에 쓰는 Amt가 동일해야 위변조 검증 통과
             const ediDate = this.paymentService.generateEdiDate();
-            const amt12 = this.paymentService.formatAmt12(transaction.totalAmt);
-            const signData = this.paymentService.generateSignData(ediDate, amt12);
+            const signData = this.paymentService.generateSignData(ediDate, transaction.totalAmt.toString());
 
             const paymentInfo: PaymentInfoDto = {
                 orderId: transaction.orderId,
-                mid: process.env.NICEPAY_MID || 'nictest00m',
+                mid: process.env.NICEPAY_MID || 'nicepay00m',
                 moid: transaction.orderId,
-                amt: amt12,
+                amt: transaction.totalAmt.toString(),
                 goodsName: transaction.productName,
                 ediDate: ediDate,
                 signData: signData,

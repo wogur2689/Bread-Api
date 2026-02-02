@@ -23,6 +23,10 @@ export class PaymentService {
         if (!this.nicepayMerchantKey) {
             this.logger.warn('나이스페이 상점키가 설정되지 않았습니다. NICEPAY_MERCHANT_KEY 환경 변수를 확인하세요.');
         }
+
+        if (!this.nicepayMid) {
+            this.logger.warn('나이스페이 MID가 설정되지 않았습니다. NICEPAY_MID 환경 변수를 확인하세요.');
+        }
     }
 
     /**
@@ -40,34 +44,18 @@ export class PaymentService {
     }
 
     /**
-     * 나이스페이 Amt 12자리 포맷 (매뉴얼: 12 byte, 제로패딩)
-     * 폼 전송값과 SignData 계산 시 반드시 동일한 문자열 사용해야 위변조 검증 통과
-     */
-    formatAmt12(amount: number): string {
-        return String(amount).padStart(12, '0');
-    }
-
-    /**
      * 나이스페이 SignData 생성 (위변조 검증 데이터)
      * SignData = hex(sha256(EdiDate + MID + Amt + MerchantKey))
-     * - Amt: 반드시 12자리 제로패딩 (formatAmt12 사용)
      * - EdiDate: YYYYMMDDHHMISS 14자
      */
-    generateSignData(ediDate: string, amt12: string): string {
-        const mid = this.nicepayMid || 'nictest00m';
-        const key = this.nicepayMerchantKey || '';
-        if (!mid) {
-            this.logger.warn('나이스페이 MID가 설정되지 않았습니다.');
-            return '';
-        }
-        const merchantKey = key || (mid.toLowerCase() === 'nictest00m' ? 'EYzu8jGGMfqaDEp76gSckuvnaHHu+bC4opsSN6lHv3b2lurNYkVXrZ7Z1AoqQnXI3eLuaUFyoRNC6FkrzVjceg==' : '');
-        if (!merchantKey) {
-            this.logger.warn('나이스페이 상점키가 설정되지 않았습니다. NICEPAY_MERCHANT_KEY 환경 변수를 확인하세요.');
-            return '';
-        }
-        const plainText = `${ediDate}${mid}${amt12}${merchantKey}`;
+    generateSignData(ediDate: string, amt: string): string {
+        const mid = this.nicepayMid || 'nicepay00m';
+        const key = this.nicepayMerchantKey || 'EYzu8jGGMfqaDEp76gSckuvnaHHu+bC4opsSN6lHv3b2lurNYkVXrZ7Z1AoqQnXI3eLuaUFyoRNC6FkrzVjceg==';
+        const plainText = `${ediDate}${mid}${amt}${key}`;
         const signData = CryptoJS.SHA256(plainText).toString(CryptoJS.enc.Hex);
-        this.logger.debug(`SignData plainText(Amt 제외) length: ${plainText.length}, amt12: ${amt12}`);
+        this.logger.debug(`plainText : ${plainText}`);
+        this.logger.debug(`plainTextSHA256 : ${CryptoJS.SHA256(plainText)}`);
+        this.logger.debug(`SignData : ${signData}`);
         return signData;
     }
 
