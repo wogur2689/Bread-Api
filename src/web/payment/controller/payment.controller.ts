@@ -82,7 +82,6 @@ export class PaymentController {
 
     /**
      * 결제 완료 콜백 (나이스페이에서 호출)
-     * POST 또는 GET 방식으로 받을 수 있도록 구현
      */
     @Post('callback')
     @ApiOperation({ summary: '결제 완료 콜백 (POST)' })
