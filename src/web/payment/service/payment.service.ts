@@ -60,6 +60,27 @@ export class PaymentService {
     }
 
     /**
+     * 로그 출력용 주문번호 마스킹
+     * 형식: ORDER-타임스탬프-랜덤문자열(9자)
+     * 랜덤문자열 9자 중 앞 4자리를 ****로 마스킹
+     */
+    private maskOrderIdForLog(orderId: string): string {
+        if (!orderId) return orderId;
+
+        const parts = orderId.split('-');
+        const randomPart = parts[parts.length - 1];
+
+        if (!randomPart || randomPart.length < 4) {
+            return orderId;
+        }
+
+        const maskedRandomPart = '****' + randomPart.slice(4);
+        parts[parts.length - 1] = maskedRandomPart;
+
+        return parts.join('-');
+    }
+
+    /**
      * 주문(결제 요청) 생성
      * 결제 대기 상태로 거래내역 저장
      */
@@ -67,8 +88,9 @@ export class PaymentService {
         try {
             // 주문번호 생성 (Moid)
             const orderId = `ORDER-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const maskedOrderIdForLog = this.maskOrderIdForLog(orderId);
 
-            this.logger.log(`orderID : orderId=${orderId}`);
+            this.logger.log(`orderID : orderId=${maskedOrderIdForLog}`);
             this.logger.log('결제 totalAmt ', dto.productName);
             
             const transaction = this.transactionRepository.create({
@@ -109,12 +131,13 @@ export class PaymentService {
     async processPaymentCallback(callbackDto: PaymentCallbackDto): Promise<TransactionDto> {
         try {
             // 주문번호(Moid)로 거래내역 조회
+            const maskedOrderIdForLog = this.maskOrderIdForLog(callbackDto.Moid);
             const transaction = await this.transactionRepository.findOne({
                 where: { orderId: callbackDto.Moid }
             });
 
             if (!transaction) {
-                this.logger.error(`거래내역을 찾을 수 없음: orderId=${callbackDto.Moid}`);
+                this.logger.error(`거래내역을 찾을 수 없음: orderId=${maskedOrderIdForLog}`);
                 throw new NotFoundException(`거래내역을 찾을 수 없습니다: ${callbackDto.Moid}`);
             }
 
@@ -122,7 +145,7 @@ export class PaymentService {
             if (callbackDto.Signature && callbackDto.MID && callbackDto.TID) {
                 const ok = this.verifyPaymentSignature(callbackDto.TID, callbackDto.MID, callbackDto.Amt, callbackDto.Signature);
                 if (!ok) {
-                    this.logger.error(`결제 Signature 위변조 검증 실패: orderId=${callbackDto.Moid}`);
+                    this.logger.error(`결제 Signature 위변조 검증 실패: orderId=${maskedOrderIdForLog}`);
                     throw new BadRequestException('결제 데이터 위변조가 감지되었습니다.');
                 }
             }
@@ -156,7 +179,7 @@ export class PaymentService {
             } else {
                 // 결제 실패 시 상태만 업데이트 (실제로 결제가 안 된 것이므로 취소 불필요)
                 transaction.paymentStatus = PaymentStatus.FAILED;
-                this.logger.warn(`결제 실패: orderId=${callbackDto.Moid}, ResultCode=${callbackDto.ResultCode}, ResultMsg=${callbackDto.ResultMsg}`);
+                this.logger.warn(`결제 실패: orderId=${maskedOrderIdForLog}, ResultCode=${callbackDto.ResultCode}, ResultMsg=${callbackDto.ResultMsg}`);
             }
 
             // 승인일시 파싱 (YYYYMMDDHHmmss 형식)
@@ -172,7 +195,7 @@ export class PaymentService {
             }
 
             const updated = await this.transactionRepository.save(transaction);
-            this.logger.log(`결제 완료 처리: orderId=${callbackDto.Moid}, status=${updated.paymentStatus}`);
+            this.logger.log(`결제 완료 처리: orderId=${maskedOrderIdForLog}, status=${updated.paymentStatus}`);
 
             return this.toDto(updated);
         } catch (error) {
@@ -277,6 +300,7 @@ export class PaymentService {
     async cancelPayment(cancelDto: PaymentCancelDto): Promise<TransactionDto> {
         try {
             // 거래내역 조회
+            const maskedOrderIdForLog = this.maskOrderIdForLog(cancelDto.orderId);
             const transaction = await this.transactionRepository.findOne({
                 where: { orderId: cancelDto.orderId }
             });
@@ -326,7 +350,7 @@ export class PaymentService {
             }
 
             const updated = await this.transactionRepository.save(transaction);
-            this.logger.log(`결제 취소 완료: orderId=${cancelDto.orderId}, cancelAmt=${cancelAmt}`);
+            this.logger.log(`결제 취소 완료: orderId=${maskedOrderIdForLog}, cancelAmt=${cancelAmt}`);
 
             return this.toDto(updated);
         } catch (error) {
@@ -342,24 +366,25 @@ export class PaymentService {
      */
     async autoCancelOnFailure(orderId: string, reason: string = '결제 실패로 인한 자동 취소'): Promise<void> {
         try {
+            const maskedOrderIdForLog = this.maskOrderIdForLog(orderId);
             const transaction = await this.transactionRepository.findOne({
                 where: { orderId }
             });
 
             if (!transaction) {
-                this.logger.warn(`자동 취소 대상 거래내역을 찾을 수 없음: orderId=${orderId}`);
+                this.logger.warn(`자동 취소 대상 거래내역을 찾을 수 없음: orderId=${maskedOrderIdForLog}`);
                 return;
             }
 
             // 이미 완료된 결제이고 TID가 있는 경우에만 취소 시도
             if (transaction.paymentStatus === PaymentStatus.COMPLETED && transaction.tid) {
-                this.logger.log(`결제 실패로 인한 자동 취소 시도: orderId=${orderId}`);
+                this.logger.log(`결제 실패로 인한 자동 취소 시도: orderId=${maskedOrderIdForLog}`);
                 await this.cancelPayment({
                     orderId: orderId,
                     cancelReason: reason,
                 });
             } else {
-                this.logger.log(`자동 취소 불필요: orderId=${orderId}, status=${transaction.paymentStatus}`);
+                this.logger.log(`자동 취소 불필요: orderId=${maskedOrderIdForLog}, status=${transaction.paymentStatus}`);
             }
         } catch (error) {
             this.logger.error(`자동 취소 처리 실패: ${error.message}`, error.stack);
