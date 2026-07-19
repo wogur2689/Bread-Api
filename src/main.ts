@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import * as session from 'express-session';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';

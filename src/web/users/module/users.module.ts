@@ -7,12 +7,18 @@ import { UsersService } from '../service/users.service';
 import { Users } from '../entity/users.entity';
 import { JwtStrategy } from '../jwt.strategy';
 
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([Users]),
     PassportModule,
     JwtModule.register({
-      secret: 'jwt-secret-key',           // 암호화 키 (추후 .env로 추출)
+      secret: jwtSecret,
       signOptions: { expiresIn: '1h' },   // 토큰 만료 시간
     }),
   ],
