@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { Subscriber } from 'rxjs';
 import { ProductModule } from './web/product/module/product.module';
 import { PaymentModule } from './web/payment/module/payment.module';
+import { FaqModule } from './web/faq/module/faq.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { PaymentModule } from './web/payment/module/payment.module';
     UsersModule,
     MenuModule,
     ProductModule,
-    PaymentModule
+    PaymentModule,
+    FaqModule
   ],
   controllers: [AppController],
   providers: [Subscriber]

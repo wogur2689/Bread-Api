@@ -6,6 +6,7 @@ import { Product } from 'src/web/product/entity/product.entity';
 import { Users } from 'src/web/users/entity/users.entity';
 import { Transaction } from 'src/web/payment/entity/transaction.entity';
 import { ErrorLog } from 'src/web/errorLog/entity/errorLog.entity';
+import { Faq } from 'src/web/faq/entity/faq.entity';
 
 @Module({
     imports: [
@@ -21,7 +22,8 @@ import { ErrorLog } from 'src/web/errorLog/entity/errorLog.entity';
           Menu, 
           Product, 
           Transaction,
-          ErrorLog
+          ErrorLog,
+          Faq
         ],
         autoLoadEntities: false, // 엔티티 자동 로드
         synchronize: false, // 개발 중에만 true
